@@ -6,6 +6,7 @@ import com.ciklon.friendtracker.common.exception.ExceptionType;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
-import java.util.List;
 import java.util.function.Function;
 
 import static com.ciklon.friendtracker.api.constant.ApiPaths.LOGIN;
@@ -28,7 +28,7 @@ public class JwtService {
 
     private final JwtProps jwtProps;
 
-    public String generateAccessToken(String userId, String login, List<String> roles) {
+    public String generateAccessToken(String userId, String login) {
         return Jwts.builder()
                 .setSubject(userId)
                 .claim(LOGIN, login)
@@ -84,7 +84,7 @@ public class JwtService {
             Date expiration = extractExpiration(token);
             return expiration.after(new Date());
         } catch (Exception e) {
-            log.error("Token is not valid: {}", e.getMessage());
+            log.error("Token is not valid. Check his expiration: {}", e.getMessage());
             throw new CustomException(ExceptionType.UNAUTHORIZED, "Token is expired or invalid");
         }
     }

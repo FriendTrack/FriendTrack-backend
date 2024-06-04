@@ -2,6 +2,7 @@ package com.ciklon.friendtracker.common.auth.util;
 
 import com.ciklon.friendtracker.common.auth.props.JwtProps;
 import com.ciklon.friendtracker.common.auth.repository.TokenRepository;
+import com.ciklon.friendtracker.common.auth.service.JwtService;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
