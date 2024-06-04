@@ -36,11 +36,12 @@ public class UserService {
     }
 
     @Transactional
-    public UserDto register(RegistrationRequestDto registrationRequestDto) {
+    public JwtAuthorityDto register(RegistrationRequestDto registrationRequestDto) {
         isLoginAndEmailAlreadyUsed(registrationRequestDto.login(), registrationRequestDto.email());
         User user = userMapper.map(registrationRequestDto, passwordEncoder.encode(registrationRequestDto.password()));
-        User savedUser = userRepository.save(user);
-        return userMapper.map(savedUser);
+        userRepository.save(user);
+        TokenDto tokens = generateTokens(user.getId(), user.getLogin());
+        return new JwtAuthorityDto(user.getId(), tokens.accessToken(), tokens.refreshToken());
     }
 
     @Transactional
@@ -48,10 +49,9 @@ public class UserService {
         isLoginExist(loginRequestDto.login());
         User user = getUserIfPasswordCorrect(loginRequestDto.login(), loginRequestDto.password());
 
-        String accessToken = jwtUtils.generateAccessToken(user.getLogin(), user.getId());
-        String refreshToken = jwtUtils.getOrGenerateRefreshToken(user.getLogin(), user.getId());
-        jwtUtils.saveToken(user.getId().toString(), refreshToken);
-        return new JwtAuthorityDto(user.getId(), accessToken, refreshToken);
+        TokenDto tokens = generateTokens(user.getId(), user.getLogin());
+        jwtUtils.saveToken(user.getId().toString(), tokens.refreshToken());
+        return new JwtAuthorityDto(user.getId(), tokens.accessToken(), tokens.refreshToken());
     }
 
     @Transactional
@@ -106,9 +106,17 @@ public class UserService {
         }
     }
 
-    void isLoginAndEmailAlreadyUsed(String login, String email) {
+    private void isLoginAndEmailAlreadyUsed(String login, String email) {
         if (userRepository.isProfileExistByLoginAndEmail(login, email)) {
             throw new CustomException(ExceptionType.ALREADY_EXISTS, "Login is already used");
         }
     }
+
+    private TokenDto generateTokens(UUID userId, String userLogin) {
+        String accessToken = jwtUtils.generateAccessToken(userLogin, userId);
+        String refreshToken = jwtUtils.getOrGenerateRefreshToken(userLogin, userId);
+        jwtUtils.saveToken(userId.toString(), refreshToken);
+        return new TokenDto(accessToken, refreshToken);
+    }
+
 }

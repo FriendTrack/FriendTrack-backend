@@ -14,7 +14,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(ApiPaths.REGISTER)
-    public UserDto register(@RequestBody RegistrationRequestDto registrationRequestDto) {
+    public JwtAuthorityDto register(@RequestBody RegistrationRequestDto registrationRequestDto) {
         return userService.register(registrationRequestDto);
     }
 
