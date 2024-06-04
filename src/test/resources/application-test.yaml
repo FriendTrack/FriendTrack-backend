@@ -1,0 +1,11 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+jwt:
+  access-secret: eyJhbGciOiJIUzI1NiJ9eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNzUwNzI2NCwiaWF0IjoxNzE3NTA3M
+  access-expiration-time: 86400000
+  refresh-secret: aW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNzUwNzI2NCwiaWF0IjoxNzE3NTA3MjY0fQDfPQBjG9cUAFQA9Q3TbHU2m5pRj
+  refresh-expiration-time: 604800000
