@@ -1,0 +1,22 @@
+server:
+  port: ${FRIEND_TRACKER_PORT:9001}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${FRIEND_TRACKER_DB:friend_tracker}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  flyway:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${FRIEND_TRACKER_DB:friend_tracker}
+    user: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:123}
+    baseline-on-migrate: true
