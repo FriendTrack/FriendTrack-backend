@@ -42,19 +42,27 @@ public class JwtUtils {
         return jwtService.generateRefreshToken(userId.toString(), login);
     }
 
-    public Claims extractAllClaimsFromAccessToken(String accessToken) {
-        return jwtService.extractAllClaimsFromAccessToken(accessToken);
+    public Claims extractAllAccessClaims(String accessToken) {
+        return jwtService.extractAllAccessClaims(accessToken);
     }
 
-    public String getSubject(String token) {
-        return jwtService.getSubject(token);
+    public String getRefreshSubject(String token) {
+        return jwtService.getRefreshSubject(token);
     }
 
-    public String getLogin(String token) {
-        return jwtService.extractLogin(token);
+    public String getAccessSubject(String token) {
+        return jwtService.getAccessSubject(token);
     }
 
-    public boolean validateToken(String token) {
-        return jwtService.validateToken(token);
+    public String getRefreshLogin(String token) {
+        return jwtService.extractRefreshLogin(token);
+    }
+
+    public boolean validateAccessToken(String token) {
+        return jwtService.validateAccessToken(token);
+    }
+
+    public boolean validateRefreshToken(String token) {
+        return jwtService.validateRefreshToken(token);
     }
 }

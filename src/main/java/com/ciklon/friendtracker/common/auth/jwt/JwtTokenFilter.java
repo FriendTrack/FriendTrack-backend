@@ -52,7 +52,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private boolean validateToken(String token) {
-        return jwtUtils.validateToken(token);
+        return jwtUtils.validateAccessToken(token);
     }
 
     private String resolveToken(HttpServletRequest request) {
@@ -63,11 +63,11 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private JwtAuthentication getAuthentication(String token) {
-        Claims claims = jwtUtils.extractAllClaimsFromAccessToken(token);
+        Claims claims = jwtUtils.extractAllAccessClaims(token);
         if (claims == null) {
             return new JwtAuthentication(false);
         }
-        return new JwtAuthentication(UUID.fromString(jwtUtils.getSubject(token)), true);
+        return new JwtAuthentication(UUID.fromString(jwtUtils.getAccessSubject(token)), true);
     }
 
     private boolean isAuthenticationRequest(HttpServletRequest request) {

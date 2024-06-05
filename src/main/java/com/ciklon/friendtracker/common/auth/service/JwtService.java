@@ -17,7 +17,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.function.Function;
 
-import static com.ciklon.friendtracker.api.constant.ApiPaths.LOGIN;
+import static com.ciklon.friendtracker.common.security.constant.SecurityConstants.LOGIN;
 
 
 @Slf4j
@@ -48,7 +48,7 @@ public class JwtService {
                 .compact();
     }
 
-    public Claims extractAllClaimsFromAccessToken(String token) {
+    public Claims extractAllAccessClaims(String token) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(getAccessSigningKey())
@@ -56,14 +56,60 @@ public class JwtService {
                     .parseClaimsJws(token)
                     .getBody();
         } catch (Exception e) {
-            log.error("Token is not valid: {}", e.getMessage());
-            throw new CustomException(ExceptionType.UNAUTHORIZED, "Token is not valid");
+            log.error("Access token is not valid: {}", e.getMessage());
+            throw new CustomException(ExceptionType.UNAUTHORIZED, "Access token is not valid");
         }
     }
 
-    public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = extractAllClaimsFromAccessToken(token);
+    public Claims extractAllRefreshClaims(String token) {
+        try {
+            return Jwts.parserBuilder()
+                    .setSigningKey(getRefreshSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+        } catch (Exception e) {
+            log.error("Refresh token is not valid: {}", e.getMessage());
+            throw new CustomException(ExceptionType.UNAUTHORIZED, "Refresh token is not valid");
+        }
+    }
+
+    public <T> T extractAccessClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllAccessClaims(token);
         return claimsResolver.apply(claims);
+    }
+
+    public <T> T extractRefreshClaim(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = extractAllRefreshClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    public String getRefreshSubject(String token) {
+        return extractRefreshClaim(token, Claims::getSubject);
+    }
+
+    public String getAccessSubject(String token) {
+        return extractAccessClaim(token, Claims::getSubject);
+    }
+
+    public boolean validateAccessToken(String token) {
+        try {
+            Date expiration = extractAccessExpiration(token);
+            return expiration.after(new Date());
+        } catch (Exception e) {
+            log.error("Access token is not valid. Check his expiration: {}", e.getMessage());
+            throw new CustomException(ExceptionType.UNAUTHORIZED, "Token is expired or invalid");
+        }
+    }
+
+    public boolean validateRefreshToken(String token) {
+        try {
+            Date expiration = extractRefreshExpiration(token);
+            return expiration.after(new Date());
+        } catch (Exception e) {
+            log.error("Token is not valid. Check his expiration: {}", e.getMessage());
+            throw new CustomException(ExceptionType.UNAUTHORIZED, "Token is expired or invalid");
+        }
     }
 
     private Key getAccessSigningKey() {
@@ -74,26 +120,15 @@ public class JwtService {
         return Keys.hmacShaKeyFor(jwtProps.getRefreshSecret().getBytes(StandardCharsets.UTF_8));
     }
 
-
-    public String getSubject(String token) {
-        return extractClaim(token, Claims::getSubject);
+    private Date extractAccessExpiration(String token) {
+        return extractAccessClaim(token, Claims::getExpiration);
     }
 
-    public boolean validateToken(String token) {
-        try {
-            Date expiration = extractExpiration(token);
-            return expiration.after(new Date());
-        } catch (Exception e) {
-            log.error("Token is not valid. Check his expiration: {}", e.getMessage());
-            throw new CustomException(ExceptionType.UNAUTHORIZED, "Token is expired or invalid");
-        }
+    private Date extractRefreshExpiration(String token) {
+        return extractRefreshClaim(token, Claims::getExpiration);
     }
 
-    private Date extractExpiration(String token) {
-        return extractClaim(token, Claims::getExpiration);
-    }
-
-    public String extractLogin(String token) {
-        return extractClaim(token, claims -> claims.get(LOGIN, String.class));
+    public String extractRefreshLogin(String token) {
+        return extractRefreshClaim(token, claims -> claims.get(LOGIN, String.class));
     }
 }

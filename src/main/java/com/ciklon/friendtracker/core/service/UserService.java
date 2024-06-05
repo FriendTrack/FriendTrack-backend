@@ -61,27 +61,27 @@ public class UserService {
 
     public TokenDto getAccessToken(String refreshToken) {
         checkRefreshToken(refreshToken);
-        String login = jwtUtils.getLogin(refreshToken);
-        String userId = jwtUtils.getSubject(refreshToken);
-        return new TokenDto(jwtUtils.generateAccessToken(login, UUID.fromString(userId)), null);
+        String login = jwtUtils.getRefreshLogin(refreshToken);
+        String userId = jwtUtils.getRefreshSubject(refreshToken);
+        return new TokenDto(jwtUtils.generateAccessToken(login, UUID.fromString(userId)), refreshToken);
     }
 
     @Transactional
     public TokenDto refresh(String refreshToken) {
         checkRefreshToken(refreshToken);
-        String login = jwtUtils.getLogin(refreshToken);
-        String userId = jwtUtils.getSubject(refreshToken);
+        String login = jwtUtils.getRefreshLogin(refreshToken);
+        String userId = jwtUtils.getRefreshSubject(refreshToken);
         jwtUtils.deleteToken(UUID.fromString(userId).toString());
         String newRefreshToken = jwtUtils.getOrGenerateRefreshToken(login, UUID.fromString(userId));
         jwtUtils.saveToken(userId, newRefreshToken);
-        return new TokenDto(null, newRefreshToken);
+        return new TokenDto(jwtUtils.generateAccessToken(login, UUID.fromString(userId)), newRefreshToken);
     }
 
     private void checkRefreshToken(String refreshToken) {
-        if (!jwtUtils.validateToken(refreshToken)) {
+        if (!jwtUtils.validateRefreshToken(refreshToken)) {
             throw new CustomException(ExceptionType.UNAUTHORIZED, "Refresh token is invalid");
         }
-        String redisRefreshToken = jwtUtils.getToken(jwtUtils.getSubject(refreshToken));
+        String redisRefreshToken = jwtUtils.getToken(jwtUtils.getRefreshSubject(refreshToken));
         if (!refreshToken.equals(redisRefreshToken)) {
             throw new CustomException(ExceptionType.UNAUTHORIZED, "Refresh token is invalid");
         }
