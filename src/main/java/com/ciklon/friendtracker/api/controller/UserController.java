@@ -1,7 +1,7 @@
 package com.ciklon.friendtracker.api.controller;
 
 import com.ciklon.friendtracker.api.constant.ApiPaths;
-import com.ciklon.friendtracker.api.dto.*;
+import com.ciklon.friendtracker.api.dto.user.*;
 import com.ciklon.friendtracker.core.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

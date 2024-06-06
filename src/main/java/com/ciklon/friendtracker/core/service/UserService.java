@@ -1,7 +1,7 @@
 package com.ciklon.friendtracker.core.service;
 
 
-import com.ciklon.friendtracker.api.dto.*;
+import com.ciklon.friendtracker.api.dto.user.*;
 import com.ciklon.friendtracker.common.auth.util.JwtUtils;
 import com.ciklon.friendtracker.common.exception.CustomException;
 import com.ciklon.friendtracker.common.exception.ExceptionType;

@@ -2,8 +2,8 @@ package utils;
 
 
 
-import com.ciklon.friendtracker.api.dto.LoginRequestDto;
-import com.ciklon.friendtracker.api.dto.RegistrationRequestDto;
+import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
+import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
 import com.ciklon.friendtracker.core.entity.User;
 
 import java.time.LocalDateTime;

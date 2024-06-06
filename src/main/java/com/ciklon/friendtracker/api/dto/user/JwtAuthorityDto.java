@@ -1,4 +1,4 @@
-package com.ciklon.friendtracker.api.dto;
+package com.ciklon.friendtracker.api.dto.user;
 
 
 import lombok.Builder;

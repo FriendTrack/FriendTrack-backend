@@ -1,4 +1,4 @@
-package com.ciklon.friendtracker.api.dto;
+package com.ciklon.friendtracker.api.dto.user;
 
 import com.ciklon.friendtracker.core.constant.DefaultMessages;
 import com.ciklon.friendtracker.core.constant.RegularExpressions;

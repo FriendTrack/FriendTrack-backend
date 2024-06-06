@@ -2,9 +2,9 @@ package it;
 
 import com.ciklon.friendtracker.FriendTrackerApplication;
 import com.ciklon.friendtracker.api.constant.ApiPaths;
-import com.ciklon.friendtracker.api.dto.LoginRequestDto;
-import com.ciklon.friendtracker.api.dto.LogoutRequestDto;
-import com.ciklon.friendtracker.api.dto.RegistrationRequestDto;
+import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
+import com.ciklon.friendtracker.api.dto.user.LogoutRequestDto;
+import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
 import com.ciklon.friendtracker.core.entity.User;
 import com.ciklon.friendtracker.core.repository.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;

@@ -1,9 +1,9 @@
 package com.ciklon.friendtracker.core.mapper;
 
 
-import com.ciklon.friendtracker.api.dto.RegistrationRequestDto;
-import com.ciklon.friendtracker.api.dto.UpdateUserDto;
-import com.ciklon.friendtracker.api.dto.UserDto;
+import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
+import com.ciklon.friendtracker.api.dto.user.UpdateUserDto;
+import com.ciklon.friendtracker.api.dto.user.UserDto;
 import com.ciklon.friendtracker.core.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
