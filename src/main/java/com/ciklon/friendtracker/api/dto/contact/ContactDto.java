@@ -2,6 +2,7 @@ package com.ciklon.friendtracker.api.dto.contact;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record ContactDto(
@@ -18,7 +19,7 @@ public record ContactDto(
         String link,
 
         @Schema(description = "Дата рождения контакта")
-        String birthDate,
+        LocalDate birthDate,
 
         @Schema(description = "Идентификатор пользователя, которому принадлежит контакт")
         UUID userId

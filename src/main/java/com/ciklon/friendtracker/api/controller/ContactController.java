@@ -3,6 +3,7 @@ package com.ciklon.friendtracker.api.controller;
 import com.ciklon.friendtracker.api.constant.ApiPaths;
 import com.ciklon.friendtracker.api.dto.contact.ContactCreationDto;
 import com.ciklon.friendtracker.api.dto.contact.ContactDto;
+import com.ciklon.friendtracker.api.dto.contact.ContactPaginationResponse;
 import com.ciklon.friendtracker.api.dto.contact.UpdateContactDto;
 import com.ciklon.friendtracker.core.service.ContactService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -99,11 +99,13 @@ public class ContactController {
             @ApiResponse(responseCode = "200", description = "Успешное получение списка контактов"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public Page<ContactDto> getContactList(
+    public ContactPaginationResponse getContactList(
             @RequestParam(value = "page", defaultValue = "0") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         UUID creatorId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        page = page < 1 ? 1 : page;
+        size = size < 1 ? 10 : size;
         return contactService.getContactList(page, size, creatorId);
     }
 }
