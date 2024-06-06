@@ -21,15 +21,18 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import utils.DataUtils;
 
+import java.util.List;
 import java.util.UUID;
 
+import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles(value = "test")
 @AutoConfigureMockMvc
@@ -53,8 +56,8 @@ public class ItContactRestControllerTests extends AbstractRestControllerBaseTest
 
     @BeforeEach
     public void setUp() {
-        userRepository.deleteAll();
         contactRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -78,13 +81,13 @@ public class ItContactRestControllerTests extends AbstractRestControllerBaseTest
 
         // then
         result
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(dto.name()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.details").value(dto.details()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.link").value(dto.link()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.birthDate").value(dto.birthDate().toString()));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.name").value(dto.name()))
+                .andExpect(jsonPath("$.details").value(dto.details()))
+                .andExpect(jsonPath("$.link").value(dto.link()))
+                .andExpect(jsonPath("$.birthDate").value(dto.birthDate().toString()));
 
         // Extract the id from the response
         String responseBody = result.andReturn().getResponse().getContentAsString();
@@ -123,13 +126,13 @@ public class ItContactRestControllerTests extends AbstractRestControllerBaseTest
 
         // then
         result
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.name").value(updateContactDto.name()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.details").value(updateContactDto.details()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.link").value(contact.getLink()))
-                .andExpect(MockMvcResultMatchers.jsonPath("$.birthDate").value(contact.getBirthDate()));
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andExpect(jsonPath("$.name").value(updateContactDto.name()))
+                .andExpect(jsonPath("$.details").value(updateContactDto.details()))
+                .andExpect(jsonPath("$.link").value(contact.getLink()))
+                .andExpect(jsonPath("$.birthDate").value(contact.getBirthDate()));
     }
 
     @Test
@@ -152,13 +155,48 @@ public class ItContactRestControllerTests extends AbstractRestControllerBaseTest
 
         // then
         result
-                .andDo(MockMvcResultHandlers.print())
-                .andExpect(MockMvcResultMatchers.status().isOk());
+                .andDo(print())
+                .andExpect(status().isOk());
 
         // Additional database checks
         assertEquals(0, contactRepository.count());
     }
 
+    @Test
+    @DisplayName("Test fetching contacts list with pagination")
+    public void givenPageAndSize_whenGetContactList_thenReturnPagedContactList() throws Exception {
+        // given
+        User user = DataUtils.getIvanIvanovPersistedUserEntity();
+        user = userRepository.save(user);
+        LoginRequestDto loginRequestDto = DataUtils.getIvanIvanovTransientLoginRequestDto();
+        String accessToken = performLoginAndGetToken(loginRequestDto);
+
+        List<Contact> contacts = List.of(
+                contactRepository.save(DataUtils.getFullJohnDoePersistedContactEntity(user)),
+                contactRepository.save(DataUtils.getPartialJohnDoePersistedContactEntity(user))
+        );
+
+        int page = 1;
+        int size = 10;
+
+        // when
+        ResultActions result = mockMvc.perform(
+                get(ApiPaths.CONTACT)
+                        .param("page", String.valueOf(page))
+                        .param("size", String.valueOf(size))
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("Authorization", "Bearer " + accessToken)
+        );
+
+        // then
+        result
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.contactDtoList", hasSize(contacts.size())))
+                .andExpect(jsonPath("$.totalPages").value(1))
+                .andExpect(jsonPath("$.page").value(page))
+                .andExpect(jsonPath("$.size").value(size));
+    }
 
     private String performLoginAndGetToken(LoginRequestDto loginRequestDto) throws Exception {
         ResultActions loginResult = mockMvc.perform(
