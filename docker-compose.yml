@@ -10,6 +10,63 @@ services:
     networks:
       - app-network
 
+  postgres:
+    image: bitnami/postgresql:latest
+    container_name: postgress
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+      POSTGRES_DB: friend_tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/docker-db-lab/:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  flyway:
+    image: flyway/flyway
+    container_name: flywayd
+    volumes:
+      - ./src/main/resources/db/migration:/flyway/sql
+    environment:
+      - FLYWAY_URL=jdbc:postgresql://postgres:5432/friend_tracker
+      - FLYWAY_USER=postgres
+      - FLYWAY_PASSWORD=123
+    command: [ "migrate" ]
+    depends_on:
+      - postgres
+      - app
+    networks:
+      - app-network
+
+  app:
+    container_name:
+      app
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        JAR_FILE: "build/libs/FriendTracker-1.0.0-SNAPSHOT.jar"
+    depends_on:
+      - postgres
+      - redis
+    ports:
+      - "9001:9001"
+    restart: unless-stopped
+    networks:
+      - app-network
+    env_file:
+      - .env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+
 networks:
   app-network:
     driver: bridge
+
+volumes:
+  postgres:
+    driver: local
