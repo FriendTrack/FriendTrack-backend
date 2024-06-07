@@ -21,12 +21,13 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping(ApiPaths.REGISTER)
-    @Operation(summary = "Регистрация пользователя", description = "Регистрирует нового пользователя и возвращает JWT" +
-            " токены")
+    @Operation(summary = "Регистрация пользователя",
+            description = "Регистрирует нового пользователя и возвращает JWT токены")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешная регистрация"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
-            @ApiResponse(responseCode = "409", description = "Конфликт данных. Вероятно пользователь с таким email уже существует."),
+            @ApiResponse(responseCode = "409",
+                    description = "Конфликт данных. Вероятно пользователь с таким email уже существует."),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
     @SecurityRequirements
@@ -59,7 +60,8 @@ public class UserController {
     }
 
     @PostMapping(ApiPaths.REFRESH)
-    @Operation(summary = "Обновление токена", description = "Обновляет refresh токен, используя старый refresh токен.")
+    @Operation(summary = "Обновление токена",
+            description = "Обновляет refresh токен, используя старый refresh токен.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное обновление токена"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
@@ -71,7 +73,8 @@ public class UserController {
     }
 
     @PostMapping (ApiPaths.ACCESS)
-    @Operation(summary = "Получение нового access токена", description = "Возвращает новый access токен используя refresh токен.")
+    @Operation(summary = "Получение нового access токена",
+            description = "Возвращает новый access токен используя refresh токен.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное получение access токена"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),

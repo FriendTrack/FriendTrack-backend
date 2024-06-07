@@ -16,7 +16,10 @@ public interface UserMapper {
 
     UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", source = "encode")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
     User map(RegistrationRequestDto registrationRequestDto, String encode);
 
     UserDto map(User user);
@@ -29,6 +32,8 @@ public interface UserMapper {
             NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "username", source = "updateUserDto.username", nullValuePropertyMappingStrategy =
             NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "id", ignore = true)
     User map(@MappingTarget User user, UpdateUserDto updateUserDto, String encode);
 }

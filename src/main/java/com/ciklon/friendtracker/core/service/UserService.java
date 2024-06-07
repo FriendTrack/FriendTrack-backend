@@ -39,7 +39,7 @@ public class UserService {
     public JwtAuthorityDto register(RegistrationRequestDto registrationRequestDto) {
         isLoginAndEmailAlreadyUsed(registrationRequestDto.login(), registrationRequestDto.email());
         User user = userMapper.map(registrationRequestDto, passwordEncoder.encode(registrationRequestDto.password()));
-        userRepository.save(user);
+        user = userRepository.save(user);
         TokenDto tokens = generateTokens(user.getId(), user.getLogin());
         return new JwtAuthorityDto(user.getId(), tokens.accessToken(), tokens.refreshToken());
     }
