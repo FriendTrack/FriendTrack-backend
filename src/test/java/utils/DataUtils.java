@@ -4,6 +4,10 @@ package utils;
 
 import com.ciklon.friendtracker.api.dto.contact.ContactCreationDto;
 import com.ciklon.friendtracker.api.dto.contact.UpdateContactDto;
+import com.ciklon.friendtracker.api.dto.enums.EmotionType;
+import com.ciklon.friendtracker.api.dto.enums.MoodType;
+import com.ciklon.friendtracker.api.dto.form.ContactInteractionCreationDto;
+import com.ciklon.friendtracker.api.dto.form.FormCreationDto;
 import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
 import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
 import com.ciklon.friendtracker.core.entity.Contact;
@@ -11,6 +15,7 @@ import com.ciklon.friendtracker.core.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public class DataUtils {
@@ -92,6 +97,18 @@ public class DataUtils {
                 user,
                 LocalDateTime.now(),
                 LocalDateTime.now()
+        );
+    }
+
+    public static FormCreationDto getFormCreationDto(List<UUID> contactIds) {
+        return new FormCreationDto(
+                MoodType.HAPPY,
+                LocalDate.now(),
+                2,
+                List.of(
+                        new ContactInteractionCreationDto(contactIds.get(0), EmotionType.LIKE),
+                        new ContactInteractionCreationDto(contactIds.get(1), EmotionType.DISLIKE)
+                )
         );
     }
 }
