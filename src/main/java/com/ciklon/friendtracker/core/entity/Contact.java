@@ -61,6 +61,17 @@ public class Contact {
         this.updatedAt = updatedAt;
     }
 
+    public Contact(String name, User user) {
+        this.name = name;
+        this.user = user;
+
+        this.details = "";
+        this.link = "";
+        this.birthDate = null;
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+    }
+
 
     @PrePersist
     public void prePersist() {

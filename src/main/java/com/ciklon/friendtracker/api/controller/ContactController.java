@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 
@@ -26,7 +27,8 @@ public class ContactController {
     private final ContactService contactService;
 
     @PostMapping(ApiPaths.CONTACT)
-    @Operation(summary = "Создание контакта", description = "Создает новый контакт для текущего пользователя.")
+    @Operation(summary = "Создание контакта",
+            description = "Создает новый контакт для текущего пользователя.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное создание контакта"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
@@ -35,6 +37,19 @@ public class ContactController {
     public ContactDto createContact(@Validated @RequestBody ContactCreationDto creationDto) {
         UUID creatorId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return contactService.createContact(creationDto, creatorId);
+    }
+
+    @PostMapping(ApiPaths.CONTACT_LIST)
+    @Operation(summary = "Создание списка контактов",
+            description = "Создает новый список контактов для текущего пользователя.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешное создание контакта"),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    public List<ContactDto> createContacts(@Validated @RequestBody List<ContactCreationDto> creationDtoList) {
+        UUID creatorId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return contactService.createContacts(creationDtoList, creatorId);
     }
 
     @PutMapping(ApiPaths.CONTACT_BY_ID)
@@ -82,7 +97,8 @@ public class ContactController {
     }
 
     @GetMapping(ApiPaths.CONTACT_BY_ID)
-    @Operation(summary = "Получение контакта по ID", description = "Возвращает данные существующего контакта по ID.")
+    @Operation(summary = "Получение контакта по ID",
+            description = "Возвращает данные существующего контакта по ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное получение контакта"),
             @ApiResponse(responseCode = "404", description = "Контакт не найден"),
@@ -93,8 +109,8 @@ public class ContactController {
     }
 
     @GetMapping(ApiPaths.CONTACT)
-    @Operation(summary = "Получение списка контактов", description = "Возвращает список контактов текущего " +
-            "пользователя с пагинацией.")
+    @Operation(summary = "Получение списка контактов",
+            description = "Возвращает список контактов текущего пользователя с пагинацией.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное получение списка контактов"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
