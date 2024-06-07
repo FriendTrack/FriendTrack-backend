@@ -57,8 +57,6 @@ services:
     restart: unless-stopped
     networks:
       - app-network
-    env_file:
-      - .env
     environment:
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
