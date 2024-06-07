@@ -9,5 +9,6 @@ public class ApiPaths {
     public static final String ACCESS = "/api/v1/user/access";
 
     public static final String CONTACT = "/api/v1/contact";
+    public static final String CONTACT_LIST = "/api/v1/contact/list";
     public static final String CONTACT_BY_ID = "/api/v1/contact/{id}";
 }

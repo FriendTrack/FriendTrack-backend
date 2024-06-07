@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -36,6 +37,25 @@ public class ContactService {
                 contactMapper.map(creationDto, creator)
         );
         return contactMapper.map(savedContact);
+    }
+
+    public List<ContactDto> createContacts(List<ContactCreationDto> creationDtoList, UUID creatorId) {
+        creationDtoList = creationDtoList.stream().distinct().toList();
+        User creator = userIntegrationService.getUserById(creatorId);
+        if (contactRepository.existsByNameInAndUserId(
+                creationDtoList.stream().map(ContactCreationDto::name).toList(),
+                creatorId
+        )) {
+            throw new CustomException(ExceptionType.BAD_REQUEST, "Contact with this name already exists");
+        }
+        List<Contact> savedContacts = contactRepository.saveAll(
+                creationDtoList.stream()
+                        .map(dto -> contactMapper.map(dto, creator))
+                        .toList()
+        );
+        return savedContacts.stream()
+                .map(contactMapper::map)
+                .toList();
     }
 
     public ContactDto updateContact(UUID contactId, UpdateContactDto updateContactDto) {
