@@ -10,4 +10,7 @@ public class ApiPaths {
 
     public static final String CONTACT = "/api/v1/contact";
     public static final String CONTACT_BY_ID = "/api/v1/contact/{id}";
+
+    public static final String FORM = "/api/v1/form";
+    public static final String FORM_BY_ID = "/api/v1/form/{id}";
 }
