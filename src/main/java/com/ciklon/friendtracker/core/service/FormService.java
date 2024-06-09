@@ -7,6 +7,7 @@ import com.ciklon.friendtracker.core.entity.Contact;
 import com.ciklon.friendtracker.core.entity.ContactInteraction;
 import com.ciklon.friendtracker.core.entity.Form;
 import com.ciklon.friendtracker.core.entity.User;
+import com.ciklon.friendtracker.core.entity.embedabble.ContactInteractionId;
 import com.ciklon.friendtracker.core.mapper.ContactInteractionMapper;
 import com.ciklon.friendtracker.core.mapper.FormMapper;
 import com.ciklon.friendtracker.core.repository.ContactInteractionRepository;
@@ -34,39 +35,49 @@ public class FormService {
     private final ContactIntegrationService contactIntegrationService;
 
     public FormDto createForm(UUID userId, FormCreationDto formCreationDto) {
-        User user = userIntegrationService.getUserById(userId);
+        try {
+            User user = userIntegrationService.getUserById(userId);
 
-        Form form = formRepository.save(
-                formMapper.map(formCreationDto, user)
-        );
+            Form form = formRepository.save(
+                    formMapper.map(formCreationDto, user)
+            );
 
-        List<Contact> contacts =
-                contactIntegrationService.getContactsByIds(
-                        formCreationDto.contactInteractions().stream()
-                                .map(ContactInteractionCreationDto::contactId)
-                                .collect(Collectors.toList())
-                );
+            List<Contact> contacts =
+                    contactIntegrationService.getContactsByIds(
+                            formCreationDto.contactInteractions().stream()
+                                    .map(ContactInteractionCreationDto::contactId)
+                                    .collect(Collectors.toList())
+                    );
 
-        List<ContactInteraction> contactInteractions = formCreationDto.contactInteractions()
-                .stream()
-                .map(contactInteractionCreationDto -> {
-                    Contact contact = contacts.stream()
-                            .filter(c -> c.getId().equals(contactInteractionCreationDto.contactId()))
-                            .findFirst()
-                            .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Contact not found"));
-                    return new ContactInteraction(contact, form, contactInteractionCreationDto.emotion());
-                })
-                .toList();
+            List<ContactInteraction> contactInteractions = formCreationDto.contactInteractions()
+                    .stream()
+                    .map(contactInteractionCreationDto -> {
+                        Contact contact = contacts.stream()
+                                .filter(c -> c.getId().equals(contactInteractionCreationDto.contactId()))
+                                .findFirst()
+                                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Contact not found"));
+                        return contactInteractionMapper.map(
+                                contact,
+                                new ContactInteractionId(contact.getId(), form.getId()),
+                                form,
+                                contactInteractionCreationDto
+                        );
+                    })
+                    .toList();
 
-        contactInteractions = contactInteractionRepository.saveAll(contactInteractions);
-        form.setContactInteractions(contactInteractions);
-        formRepository.save(form);
+            contactInteractions = contactInteractionRepository.saveAll(contactInteractions);
+            form.setContactInteractions(contactInteractions);
+            formRepository.save(form);
 
-        List<ContactInteractionDto> contactInteractionDtoList = contactInteractions.stream()
-                .map(contactInteractionMapper::map)
-                .toList();
+            List<ContactInteractionDto> contactInteractionDtoList = contactInteractions.stream()
+                    .map(contactInteractionMapper::map)
+                    .toList();
 
-        return formMapper.map(form, contactInteractionDtoList);
+            return formMapper.map(form, contactInteractionDtoList);
+        } catch (Exception e) {
+            throw new CustomException(ExceptionType.FATAL, "Error creating form");
+        }
+
     }
 
     public FormDto updateForm(UUID formId, UUID userId, UpdateFormDto updateFormDto) {

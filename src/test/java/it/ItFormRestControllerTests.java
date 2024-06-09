@@ -76,7 +76,6 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
                         .content(objectMapper.writeValueAsString(formCreationDto))
         );
         // then
-
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.userId").isNotEmpty())
