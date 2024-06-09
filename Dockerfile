@@ -1,6 +1,6 @@
 FROM openjdk:21-jdk as build
 
-ARG JAR_FILE
+ARG JAR_FILE=build/libs/FriendTracker-1.0.0-SNAPSHOT.jar
 WORKDIR /build
 
 ADD $JAR_FILE application.jar
