@@ -1,11 +1,10 @@
 package com.ciklon.friendtracker.core.entity;
 
-import com.ciklon.friendtracker.api.dto.enums.InteractionMark;
-import com.ciklon.friendtracker.api.dto.enums.InteractionType;
 import com.ciklon.friendtracker.core.entity.embedabble.ContactInteractionId;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "contact_interactions")
 @NoArgsConstructor
+@AllArgsConstructor
 public class ContactInteraction {
     @EmbeddedId
     private ContactInteractionId id;
@@ -31,59 +31,40 @@ public class ContactInteraction {
 
     @Min(0)
     @Max(10)
-    private Integer happiness = 0;
+    private Integer communication = 0;
 
     @Min(0)
     @Max(10)
-    private Integer sadness = 0;
+    private Integer empathy = 0;
 
     @Min(0)
     @Max(10)
-    private Integer fear = 0;
+    private Integer trust = 0;
 
     @Min(0)
     @Max(10)
-    private Integer disgust = 0;
+    private Integer time = 0;
 
     @Min(0)
     @Max(10)
-    private Integer anger = 0;
-
-    @Min(0)
-    @Max(10)
-    private Integer surprise = 0;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private InteractionMark interactionMark = InteractionMark.LIKE;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private InteractionType interactionType = InteractionType.MEETING;
-
+    private Integer respect = 0;
 
     public ContactInteraction(
             Contact contact,
             Form form,
-            Integer happiness,
-            Integer sadness,
-            Integer fear,
-            Integer disgust,
-            Integer anger,
-            Integer surprise,
-            InteractionMark interactionMark,
-            InteractionType interactionType
+            Integer communication,
+            Integer empathy,
+            Integer trust,
+            Integer time,
+            Integer respect
     ) {
         this.id = new ContactInteractionId(form.getId(), contact.getId());
         this.contact = contact;
         this.form = form;
-        this.happiness = happiness;
-        this.sadness = sadness;
-        this.fear = fear;
-        this.disgust = disgust;
-        this.anger = anger;
-        this.surprise = surprise;
-        this.interactionMark = interactionMark;
-        this.interactionType = interactionType;
+        this.communication = communication;
+        this.empathy = empathy;
+        this.trust = trust;
+        this.time = time;
+        this.respect = respect;
     }
 }
