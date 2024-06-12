@@ -88,8 +88,6 @@ public class FormService {
         return formMapper.map(form, contactInteractionDtoList);
     }
 
-
-
     private Form getFormIfBelongToUser(UUID formId, UUID userId) {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Form not found"));
