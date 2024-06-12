@@ -7,22 +7,21 @@ create table forms
     date timestamp not null,
     created_at timestamp default current_timestamp not null,
     updated_at timestamp default current_timestamp not null,
-    foreign key (user_id) references users(id)
+    foreign key (user_id) references users(id) on delete cascade
 );
 
 create table contact_interactions
 (
     form_id uuid not null,
     contact_id uuid not null,
-    interaction_type varchar(100) not null default 'TEXT' check (interaction_type in ('TEXT', 'CALL', 'MEETING')),
-    happiness int default 0 check ((happiness >= 0 and happiness <= 10) or happiness is null),
-    sadness int default 0 check ((sadness >= 0 and sadness <= 10) or sadness is null),
-    fear int default 0 check ((fear >= 0 and fear <= 10) or fear is null),
-    disgust int default 0 check ((disgust >= 0 and disgust <= 10) or disgust is null),
-    anger int default 0 check ((anger >= 0 and anger <= 10) or anger is null),
-    surprise int default 0 check ((surprise >= 0 and surprise <= 10) or surprise is null),
-    interaction_mark varchar(100) not null default 'LIKE' check (interaction_mark in ('LIKE', 'DISLIKE')),
-    foreign key (form_id) references forms (id),
-    foreign key (contact_id) references contacts (id),
+    communication int default 0 check ((communication >= 0 and communication <= 10) or communication is null),
+    respect int default 0 check ((respect >= 0 and respect <= 10) or respect is null),
+    time int default 0 check ((time >= 0 and time <= 10) or time is null),
+    trust int default 0 check ((trust >= 0 and trust <= 10) or trust is null),
+    empathy int default 0 check ((empathy >= 0 and empathy <= 10) or empathy is null),
+    foreign key (form_id) references forms (id) on delete cascade,
+    foreign key (contact_id) references contacts (id) on delete cascade,
     primary key (form_id, contact_id)
 );
+
+

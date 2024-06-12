@@ -35,59 +35,27 @@ public class FormService {
     private final ContactIntegrationService contactIntegrationService;
 
     public FormDto createForm(UUID userId, FormCreationDto formCreationDto) {
-        try {
-            User user = userIntegrationService.getUserById(userId);
+        User user = userIntegrationService.getUserById(userId);
+        Form form = formRepository.save(
+                formMapper.map(formCreationDto, user)
+        );
 
-            Form form = formRepository.save(
-                    formMapper.map(formCreationDto, user)
-            );
+        List<ContactInteraction> contactInteractions = saveContactInteractions(form, formCreationDto.contactInteractions());
+        List<ContactInteractionDto> contactInteractionDtoList = contactInteractions.stream()
+                .map(contactInteractionMapper::map)
+                .toList();
 
-            List<Contact> contacts =
-                    contactIntegrationService.getContactsByIds(
-                            formCreationDto.contactInteractions().stream()
-                                    .map(ContactInteractionCreationDto::contactId)
-                                    .collect(Collectors.toList())
-                    );
-
-            List<ContactInteraction> contactInteractions = formCreationDto.contactInteractions()
-                    .stream()
-                    .map(contactInteractionCreationDto -> {
-                        Contact contact = contacts.stream()
-                                .filter(c -> c.getId().equals(contactInteractionCreationDto.contactId()))
-                                .findFirst()
-                                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Contact not found"));
-                        return contactInteractionMapper.map(
-                                contact,
-                                new ContactInteractionId(contact.getId(), form.getId()),
-                                form,
-                                contactInteractionCreationDto
-                        );
-                    })
-                    .toList();
-
-            contactInteractions = contactInteractionRepository.saveAll(contactInteractions);
-            form.setContactInteractions(contactInteractions);
-            formRepository.save(form);
-
-            List<ContactInteractionDto> contactInteractionDtoList = contactInteractions.stream()
-                    .map(contactInteractionMapper::map)
-                    .toList();
-
-            return formMapper.map(form, contactInteractionDtoList);
-        } catch (Exception e) {
-            throw new CustomException(ExceptionType.FATAL, "Error creating form");
-        }
-
+        return formMapper.map(form, contactInteractionDtoList);
     }
 
-    public FormDto updateForm(UUID formId, UUID userId, UpdateFormDto updateFormDto) {
-        throw new CustomException(ExceptionType.FATAL, "not implemented");
-//        Form form = formRepository.findById(formId)
-//                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Form not found"));
-//        if (!form.getUser().getId().equals(userId)) {
-//            throw new CustomException(ExceptionType.FORBIDDEN, "Form does not belong to the user");
-//        }
-//        throw new CustomException(ExceptionType.FATAL, "not implemented");
+    public ShortFormDto updateForm(UUID formId, UUID userId, UpdateFormDto updateFormDto) {
+        Form form = formRepository.findById(formId)
+                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Form not found"));
+        if (!form.getUser().getId().equals(userId)) {
+            throw new CustomException(ExceptionType.FORBIDDEN, "Form does not belong to the user");
+        }
+        return formMapper.map(formRepository.save(formMapper.map(form, updateFormDto)));
+
     }
 
     public void deleteForm(UUID formId, UUID userId) {
@@ -107,6 +75,21 @@ public class FormService {
         return formMapper.map(form, contactInteractionDtoList);
     }
 
+    public FormDto updateContactInteractions(UUID formId, UUID userId,
+                                             List<ContactInteractionCreationDto> creationDtos) {
+        Form form = getFormIfBelongToUser(formId, userId);
+        contactInteractionRepository.deleteAll(form.getContactInteractions());
+
+        List<ContactInteraction> contactInteractions = saveContactInteractions(form, creationDtos);
+        List<ContactInteractionDto> contactInteractionDtoList = contactInteractions.stream()
+                .map(contactInteractionMapper::map)
+                .toList();
+
+        return formMapper.map(form, contactInteractionDtoList);
+    }
+
+
+
     private Form getFormIfBelongToUser(UUID formId, UUID userId) {
         Form form = formRepository.findById(formId)
                 .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Form not found"));
@@ -116,4 +99,37 @@ public class FormService {
         return form;
     }
 
+    private List<ContactInteraction> saveContactInteractions(Form form, List<ContactInteractionCreationDto> creationDtos) {
+        List<ContactInteraction> contactInteractions = createContactInteractions(form, creationDtos);
+        contactInteractions = contactInteractionRepository.saveAll(contactInteractions);
+        form.setInteractionCount(contactInteractions.size());
+        form.setContactInteractions(contactInteractions);
+        formRepository.save(form);
+        return contactInteractions;
+    }
+
+    private List<ContactInteraction> createContactInteractions(Form form, List<ContactInteractionCreationDto> creationDtos) {
+        List<Contact> contacts =
+                contactIntegrationService.getContactsByIds(
+                        creationDtos.stream()
+                                .map(ContactInteractionCreationDto::contactId)
+                                .collect(Collectors.toList())
+                );
+
+        return creationDtos
+                .stream()
+                .map(contactInteractionCreationDto -> {
+                    Contact contact = contacts.stream()
+                            .filter(c -> c.getId().equals(contactInteractionCreationDto.contactId()))
+                            .findFirst()
+                            .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Contact not found"));
+                    return contactInteractionMapper.map(
+                            contact,
+                            new ContactInteractionId(contact.getId(), form.getId()),
+                            form,
+                            contactInteractionCreationDto
+                    );
+                })
+                .toList();
+    }
 }

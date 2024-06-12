@@ -22,14 +22,11 @@ public interface ContactInteractionMapper {
     @Mapping(target = "id", source = "contactInteractionId")
     @Mapping(target = "form", source = "form")
     @Mapping(target = "contact", source = "contact")
-    @Mapping(target = "happiness", source = "contactInteractionCreationDto.happiness")
-    @Mapping(target = "sadness", source = "contactInteractionCreationDto.sadness")
-    @Mapping(target = "fear", source = "contactInteractionCreationDto.fear")
-    @Mapping(target = "disgust", source = "contactInteractionCreationDto.disgust")
-    @Mapping(target = "anger", source = "contactInteractionCreationDto.anger")
-    @Mapping(target = "surprise", source = "contactInteractionCreationDto.surprise")
-    @Mapping(target = "interactionMark", source = "contactInteractionCreationDto.interactionMark")
-    @Mapping(target = "interactionType", source = "contactInteractionCreationDto.interactionType")
+    @Mapping(target = "communication", source = "contactInteractionCreationDto.communication")
+    @Mapping(target = "empathy", source = "contactInteractionCreationDto.empathy")
+    @Mapping(target = "trust", source = "contactInteractionCreationDto.trust")
+    @Mapping(target = "time", source = "contactInteractionCreationDto.time")
+    @Mapping(target = "respect", source = "contactInteractionCreationDto.respect")
     ContactInteraction map(
             Contact contact, ContactInteractionId contactInteractionId, Form form,
             ContactInteractionCreationDto contactInteractionCreationDto
