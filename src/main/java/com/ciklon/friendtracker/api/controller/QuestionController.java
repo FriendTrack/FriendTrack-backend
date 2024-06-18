@@ -29,6 +29,13 @@ public class QuestionController {
         return questionService.addUserAnswer(userAnswerCreationDto, userId);
     }
 
+    @DeleteMapping(ApiPaths.USER_ANSWER_BY_ID)
+    @Operation(summary = "Удалить ответ пользователя на вопрос", description = "Удаление ответа пользователя на вопрос.")
+    public UserAnswerDto deleteUserAnswer(@PathVariable("id") UUID answerId) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return questionService.deleteUserAnswer(answerId, userId);
+    }
+
     @GetMapping(ApiPaths.QUESTION)
     @Operation(summary = "Получение списка вопросов", description = "Получение списка вопросов.")
     public PaginationResponse<QuestionDto> getQuestions(
