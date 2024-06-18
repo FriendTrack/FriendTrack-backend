@@ -14,4 +14,19 @@ public class ApiPaths {
 
     public static final String FORM = "/api/v1/form";
     public static final String FORM_BY_ID = "/api/v1/form/{id}";
+    public static final String CONTACT_FORM_BY_ID = "/api/v1/form/{id}/contact";
+
+    public static final String RATING = "/api/v1/rating";
+    public static final String RATING_BY_CONTACT_ID = "/api/v1/rating/contact/{id}";
+
+    public static final String QUESTION = "/api/v1/question";
+    public static final String QUESTION_BY_ID = "/api/v1/question/{id}";
+    public static final String QUESTION_ANSWERS = "/api/v1/question/{id}/answers";
+
+    public static final String USER_ANSWERS_BY_CONTACT = "/api/v1/answers/contact/{id}";
+    public static final String QUESTION_ANSWER_BY_ID = "/api/v1/answers/{id}";
+    public static final String ALL_QUESTION_ANSWERS_BY_QUESTION_ID = "/api/v1/answers/question/{id}";
+    public static final String USER_ANSWERS = "/api/v1/answers";
+    public static final String USER_ANSWER = "/api/v1/answers/user";
+
 }
