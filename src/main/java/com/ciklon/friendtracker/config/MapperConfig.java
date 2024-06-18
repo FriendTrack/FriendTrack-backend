@@ -1,10 +1,7 @@
 package com.ciklon.friendtracker.config;
 
 
-import com.ciklon.friendtracker.core.mapper.ContactInteractionMapper;
-import com.ciklon.friendtracker.core.mapper.ContactMapper;
-import com.ciklon.friendtracker.core.mapper.FormMapper;
-import com.ciklon.friendtracker.core.mapper.UserMapper;
+import com.ciklon.friendtracker.core.mapper.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,5 +26,20 @@ public class MapperConfig {
     @Bean
     public ContactInteractionMapper contactInteractionMapper() {
         return ContactInteractionMapper.INSTANCE;
+    }
+
+    @Bean
+    public QuestionAnswerMapper questionAnswerMapper() {
+        return QuestionAnswerMapper.INSTANCE;
+    }
+
+    @Bean
+    public QuestionMapper questionMapper() {
+        return QuestionMapper.INSTANCE;
+    }
+
+    @Bean
+    public UserAnswerMapper userAnswerMapper() {
+        return UserAnswerMapper.INSTANCE;
     }
 }
