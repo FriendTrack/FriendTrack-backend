@@ -1,24 +1,25 @@
 package utils;
 
 
-
 import com.ciklon.friendtracker.api.dto.contact.ContactCreationDto;
 import com.ciklon.friendtracker.api.dto.contact.UpdateContactDto;
+import com.ciklon.friendtracker.api.dto.enums.FieldType;
 import com.ciklon.friendtracker.api.dto.enums.MoodType;
 import com.ciklon.friendtracker.api.dto.form.ContactInteractionCreationDto;
 import com.ciklon.friendtracker.api.dto.form.FormCreationDto;
+import com.ciklon.friendtracker.api.dto.question.QuestionAnswerCreationDto;
+import com.ciklon.friendtracker.api.dto.question.QuestionCreationDto;
+import com.ciklon.friendtracker.api.dto.rating.UserAnswerCreationDto;
 import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
 import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
-import com.ciklon.friendtracker.core.entity.Contact;
-import com.ciklon.friendtracker.core.entity.ContactInteraction;
-import com.ciklon.friendtracker.core.entity.Form;
-import com.ciklon.friendtracker.core.entity.User;
+import com.ciklon.friendtracker.core.entity.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
 
 public class DataUtils {
 
@@ -129,4 +130,70 @@ public class DataUtils {
         );
     }
 
+    public static QuestionCreationDto getQuestionCreationDto() {
+        return new QuestionCreationDto(
+                "Question text",
+                FieldType.COMMUNICATION,
+                List.of(
+                        new QuestionAnswerCreationDto("Answer 1"),
+                        new QuestionAnswerCreationDto("Answer 2")
+                )
+        );
+    }
+
+
+    public static QuestionCreationDto getQuestionCreationDtoWithEmptyAnswers() {
+        return new QuestionCreationDto(
+                "Question text",
+                FieldType.COMMUNICATION,
+                Collections.emptyList()
+        );
+    }
+
+    public static QuestionCreationDto getQuestionCreationDtoWithEmptyQuestion() {
+        return new QuestionCreationDto(
+                null,
+                FieldType.COMMUNICATION,
+                List.of(
+                        new QuestionAnswerCreationDto("Answer 1"),
+                        new QuestionAnswerCreationDto("Answer 2")
+                )
+        );
+    }
+
+    public static Question getQuestionEntity() {
+        return new Question(
+                UUID.randomUUID(),
+                "Question text",
+                FieldType.COMMUNICATION,
+                Collections.emptyList()
+        );
+    }
+
+    public static List<QuestionAnswer> getQuestionAnswerEntities(Question question) {
+        return List.of(
+                new QuestionAnswer(UUID.randomUUID(), question, "Answer 1"),
+                new QuestionAnswer(UUID.randomUUID(), question, "Answer 2")
+        );
+    }
+
+    public static UserAnswerCreationDto getUserAnswerCreationDto(
+            UUID questionId, UUID answerId, UUID contactId
+    ) {
+        return new UserAnswerCreationDto(
+                questionId,
+                contactId,
+                answerId
+        );
+    }
+
+
+    public static UserAnswer getUserAnswerEntity(Contact contact, Question question, QuestionAnswer questionAnswer, User user) {
+        return new UserAnswer(
+                question,
+                questionAnswer,
+                contact,
+                user
+        );
+    }
 }
