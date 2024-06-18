@@ -6,15 +6,15 @@ import com.ciklon.friendtracker.api.dto.rating.UserAnswerCreationDto;
 import com.ciklon.friendtracker.api.dto.rating.UserAnswerDto;
 import com.ciklon.friendtracker.common.exception.CustomException;
 import com.ciklon.friendtracker.common.exception.ExceptionType;
-import com.ciklon.friendtracker.core.entity.Question;
-import com.ciklon.friendtracker.core.entity.QuestionAnswer;
-import com.ciklon.friendtracker.core.entity.UserAnswer;
+import com.ciklon.friendtracker.core.entity.*;
 import com.ciklon.friendtracker.core.mapper.QuestionAnswerMapper;
 import com.ciklon.friendtracker.core.mapper.QuestionMapper;
 import com.ciklon.friendtracker.core.mapper.UserAnswerMapper;
 import com.ciklon.friendtracker.core.repository.QuestionAnswerRepository;
 import com.ciklon.friendtracker.core.repository.QuestionRepository;
 import com.ciklon.friendtracker.core.repository.UserAnswerRepository;
+import com.ciklon.friendtracker.core.service.integration.ContactIntegrationService;
+import com.ciklon.friendtracker.core.service.integration.UserIntegrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -33,6 +33,9 @@ public class QuestionService {
     private final QuestionRepository questionRepository;
     private final QuestionAnswerRepository questionAnswerRepository;
     private final UserAnswerRepository userAnswerRepository;
+
+    private final ContactIntegrationService contactIntegrationService;
+    private final UserIntegrationService userIntegrationService;
 
     private final QuestionMapper questionMapper;
     private final QuestionAnswerMapper questionAnswerMapper;
@@ -100,7 +103,16 @@ public class QuestionService {
     }
 
     public UserAnswerDto addUserAnswer(UserAnswerCreationDto userAnswerCreationDto, UUID userId) {
-        UserAnswer userAnswer = userAnswerRepository.save(userAnswerMapper.map(userAnswerCreationDto, userId));
+        Question question = questionRepository.findById(userAnswerCreationDto.questionId())
+                .orElseThrow(() -> new CustomException(ExceptionType.BAD_REQUEST, "Question not found"));
+        QuestionAnswer questionAnswer = questionAnswerRepository.findById(userAnswerCreationDto.answerId())
+                .orElseThrow(() -> new CustomException(ExceptionType.BAD_REQUEST, "Answer not found"));
+        if (!questionAnswer.getQuestion().getId().equals(question.getId())) {
+            throw new CustomException(ExceptionType.BAD_REQUEST, "Answer does not belong to the question");
+        }
+        Contact contact = contactIntegrationService.getContactById(userAnswerCreationDto.contactId());
+        User user = userIntegrationService.getUserById(userId);
+        UserAnswer userAnswer = userAnswerRepository.save(new UserAnswer(question, questionAnswer, contact, user));
         return userAnswerMapper.map(userAnswer);
     }
 
@@ -177,5 +189,15 @@ public class QuestionService {
         return questionAnswerRepository.deleteAllByQuestionId(questionId).stream()
                 .map(questionAnswerMapper::map)
                 .toList();
+    }
+
+    public UserAnswerDto deleteUserAnswer(UUID answerId, UUID userId) {
+        UserAnswer userAnswer = userAnswerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Answer not found"));
+        if (!userAnswer.getUser().getId().equals(userId)) {
+            throw new CustomException(ExceptionType.FORBIDDEN, "You can delete only your answers");
+        }
+        userAnswerRepository.delete(userAnswer);
+        return userAnswerMapper.map(userAnswer);
     }
 }

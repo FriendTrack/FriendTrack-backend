@@ -2,16 +2,17 @@ package com.ciklon.friendtracker.core.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
 
 @Getter
 @Entity
 @Table(name = "user_answers")
+@NoArgsConstructor
 public class UserAnswer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -29,4 +30,12 @@ public class UserAnswer {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "answer_id")
     private QuestionAnswer questionAnswer;
+
+
+    public UserAnswer(Question question, QuestionAnswer questionAnswer, Contact contact, User user) {
+        this.question = question;
+        this.questionAnswer = questionAnswer;
+        this.contact = contact;
+        this.user = user;
+    }
 }

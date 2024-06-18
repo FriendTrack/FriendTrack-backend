@@ -28,5 +28,5 @@ public class ApiPaths {
     public static final String ALL_QUESTION_ANSWERS_BY_QUESTION_ID = "/api/v1/answers/question/{id}";
     public static final String USER_ANSWERS = "/api/v1/answers";
     public static final String USER_ANSWER = "/api/v1/answers/user";
-
+    public static final String USER_ANSWER_BY_ID = "/api/v1/answers/{id}/user";
 }
