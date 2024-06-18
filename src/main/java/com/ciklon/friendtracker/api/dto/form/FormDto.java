@@ -21,7 +21,7 @@ public record FormDto(
         LocalDate date,
 
         @Schema(description = "Количество взаимодействий с контактами")
-        Integer interactionCount,
+        int interactionCount,
 
         @Schema(description = "Список взаимодействий с контактами")
         List<ContactInteractionDto> contactInteractions

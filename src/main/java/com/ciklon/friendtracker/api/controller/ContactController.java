@@ -97,8 +97,7 @@ public class ContactController {
     }
 
     @GetMapping(ApiPaths.CONTACT_BY_ID)
-    @Operation(summary = "Получение контакта по ID",
-            description = "Возвращает данные существующего контакта по ID.")
+    @Operation(summary = "Получение контакта по ID", description = "Возвращает данные существующего контакта по ID.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Успешное получение контакта"),
             @ApiResponse(responseCode = "404", description = "Контакт не найден"),

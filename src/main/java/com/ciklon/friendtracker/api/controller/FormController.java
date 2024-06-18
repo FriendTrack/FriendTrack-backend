@@ -52,9 +52,9 @@ public class FormController {
         return formService.updateForm(formId, userId, updateFormDto);
     }
 
-    @PatchMapping(ApiPaths.FORM_BY_ID)
-    @Operation(summary = "Обновление контактов взаимодействия в форме", description = "Обновляет данные формы " +
-            "взаимодейстия пользователя.")
+    @PatchMapping(ApiPaths.CONTACT_FORM_BY_ID)
+    @Operation(summary = "Обновление контактов взаимодействия в форме", description = """
+            Обновляет данные формы взаимодейстия пользователя.""")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Форма успешно обновлена"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные формы"),
@@ -83,15 +83,15 @@ public class FormController {
     }
 
     @GetMapping(ApiPaths.FORM_BY_ID)
-    @Operation(summary = "Получение формы", description = "Получает форму.")
+    @Operation(summary = "Получение формы по id", description = "Получает форму.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Форма успешно получена"),
             @ApiResponse(responseCode = "400", description = "Некорректные данные формы"),
             @ApiResponse(responseCode = "401", description = "Пользователь не авторизован"),
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
-    public FormDto getForm(@PathVariable("id") UUID formId) {
+    public FormDto getFormById(@PathVariable("id") UUID formId) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return formService.getForm(formId, userId);
+        return formService.getFormById(formId, userId);
     }
 }

@@ -67,6 +67,9 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
 
     @BeforeEach
     public void setUp() {
+        contactInteractionRepository.deleteAll();
+        formRepository.deleteAll();
+        contactRepository.deleteAll();
         userRepository.deleteAll();
     }
 
@@ -117,7 +120,7 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
         User user = userRepository.save(DataUtils.getIvanIvanovPersistedUserEntity());
         LoginRequestDto loginRequestDto = DataUtils.getIvanIvanovTransientLoginRequestDto();
         String accessToken = performLoginAndGetToken(loginRequestDto);
-        List<Contact> contactList = createContactsAndGeList(user);
+        List<Contact> contactList = createContactsAndGetList(user);
         Form formEntity = formRepository.save(DataUtils.getFormEntity(user, contactList.size()));
         createContactsInteractions(contactList, formEntity);
 
@@ -140,7 +143,7 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
         User user = userRepository.save(DataUtils.getIvanIvanovPersistedUserEntity());
         LoginRequestDto loginRequestDto = DataUtils.getIvanIvanovTransientLoginRequestDto();
         String accessToken = performLoginAndGetToken(loginRequestDto);
-        List<Contact> contactList = createContactsAndGeList(user);
+        List<Contact> contactList = createContactsAndGetList(user);
         Form formEntity = formRepository.save(DataUtils.getFormEntity(user, contactList.size()));
         createContactsInteractions(contactList, formEntity);
 
@@ -172,7 +175,7 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
         return contacts.stream().map(Contact::getId).toList();
     }
 
-    private List<Contact> createContactsAndGeList(User user) {
+    private List<Contact> createContactsAndGetList(User user) {
         return List.of(
                 contactRepository.save(DataUtils.getFullJohnDoePersistedContactEntity(user)),
                 contactRepository.save(DataUtils.getPartialJohnDoePersistedContactEntity(user))

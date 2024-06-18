@@ -45,7 +45,7 @@ public class FormService {
                 .map(contactInteractionMapper::map)
                 .toList();
 
-        return formMapper.map(form, contactInteractionDtoList);
+        return formMapper.map(form, contactInteractionDtoList, contactInteractionDtoList.size());
     }
 
     public ShortFormDto updateForm(UUID formId, UUID userId, UpdateFormDto updateFormDto) {
@@ -67,12 +67,12 @@ public class FormService {
         formRepository.delete(form);
     }
 
-    public FormDto getForm(UUID formId, UUID userId) {
+    public FormDto getFormById(UUID formId, UUID userId) {
         Form form = getFormIfBelongToUser(formId, userId);
         List<ContactInteractionDto> contactInteractionDtoList = form.getContactInteractions().stream()
                 .map(contactInteractionMapper::map)
                 .toList();
-        return formMapper.map(form, contactInteractionDtoList);
+        return formMapper.map(form, contactInteractionDtoList, contactInteractionDtoList.size());
     }
 
     public FormDto updateContactInteractions(UUID formId, UUID userId,
@@ -85,7 +85,7 @@ public class FormService {
                 .map(contactInteractionMapper::map)
                 .toList();
 
-        return formMapper.map(form, contactInteractionDtoList);
+        return formMapper.map(form, contactInteractionDtoList, contactInteractionDtoList.size());
     }
 
     private Form getFormIfBelongToUser(UUID formId, UUID userId) {

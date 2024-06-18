@@ -23,16 +23,19 @@ public interface FormMapper {
     Form map(FormCreationDto formCreationDto, User user);
 
     @Mapping(target = "userId", source = "form.user.id")
-    @Mapping(target = "contactInteractions", source = "contactInteractionDtoList")
-    FormDto map(Form form, List<ContactInteractionDto> contactInteractionDtoList);
+    @Mapping(target = "contactInteractions", source = "contactInteractions")
+    @Mapping(target = "interactionCount", source = "interactionCount")
+    FormDto map(Form form, List<ContactInteractionDto> contactInteractions, int interactionCount);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "contactInteractions", ignore = true)
+    @Mapping(target = "interactionCount", ignore = true)
     @Mapping(target = "mood", source = "updateFormDto.mood")
     @Mapping(target = "date", source = "updateFormDto.date")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "user", ignore = true)
+    @Mapping(target = "contactInteractions", ignore = true)
     Form map(@MappingTarget Form form, UpdateFormDto updateFormDto);
-
 
     @Mapping(target = "userId", source = "form.user.id")
     ShortFormDto map(Form form);
