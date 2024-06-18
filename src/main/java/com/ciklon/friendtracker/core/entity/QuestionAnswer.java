@@ -3,7 +3,6 @@ package com.ciklon.friendtracker.core.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter

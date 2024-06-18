@@ -10,7 +10,6 @@ import com.ciklon.friendtracker.api.dto.form.FormCreationDto;
 import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
 import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
 import com.ciklon.friendtracker.core.entity.Contact;
-import com.ciklon.friendtracker.core.entity.ContactInteraction;
 import com.ciklon.friendtracker.core.entity.Form;
 import com.ciklon.friendtracker.core.entity.User;
 
