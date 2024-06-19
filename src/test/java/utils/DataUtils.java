@@ -138,8 +138,8 @@ public class DataUtils {
                 "Question text",
                 FieldType.COMMUNICATION,
                 List.of(
-                        new QuestionAnswerCreationDto("Answer 1"),
-                        new QuestionAnswerCreationDto("Answer 2")
+                        new QuestionAnswerCreationDto("Answer 1", true),
+                        new QuestionAnswerCreationDto("Answer 2", false)
                 )
         );
     }
@@ -158,8 +158,8 @@ public class DataUtils {
                 null,
                 FieldType.COMMUNICATION,
                 List.of(
-                        new QuestionAnswerCreationDto("Answer 1"),
-                        new QuestionAnswerCreationDto("Answer 2")
+                        new QuestionAnswerCreationDto("Answer 1", true),
+                        new QuestionAnswerCreationDto("Answer 2", false)
                 )
         );
     }
@@ -175,8 +175,8 @@ public class DataUtils {
 
     public static List<QuestionAnswer> getQuestionAnswerEntities(Question question) {
         return List.of(
-                new QuestionAnswer(UUID.randomUUID(), question, "Answer 1"),
-                new QuestionAnswer(UUID.randomUUID(), question, "Answer 2")
+                new QuestionAnswer(UUID.randomUUID(), question, "Answer 1", true),
+                new QuestionAnswer(UUID.randomUUID(), question, "Answer 2", false)
         );
     }
 

@@ -125,7 +125,7 @@ public class QuestionService {
         }
         Question question = questionRepository.save(questionMapper.map(questionCreationDto));
         List<QuestionAnswer> questionAnswers = questionCreationDto.answers().stream()
-                .map(dto -> new QuestionAnswer(dto.answer(), question))
+                .map(dto -> new QuestionAnswer(dto.answer(), question, dto.isPositive()))
                 .toList();
         List<QuestionAnswerDto> questionAnswerDtos = questionAnswerRepository.saveAll(questionAnswers).stream()
                 .map(questionAnswerMapper::map)
@@ -169,8 +169,11 @@ public class QuestionService {
         }
         Question question = questionRepository.findById(questionId)
                 .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Question not found"));
-        List<QuestionAnswer> questionAnswers = updateAnswerDtos.stream()
-                .map(updateAnswerDto -> new QuestionAnswer(updateAnswerDto.answer(), question))
+        List<QuestionAnswer> questionAnswers = updateAnswerDtos.stream().map(updateAnswerDto -> new QuestionAnswer(
+                        updateAnswerDto.answer(),
+                        question,
+                        updateAnswerDto.isPositive()
+                ))
                 .toList();
         return questionAnswerRepository.saveAll(questionAnswers).stream()
                 .map(questionAnswerMapper::map)

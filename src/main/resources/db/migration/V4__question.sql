@@ -9,6 +9,7 @@ create table question_answers (
     id uuid primary key,
     question_id uuid not null,
     answer text not null,
+    is_positive boolean not null,
     foreign key (question_id) references questions(id) on delete cascade
 );
 

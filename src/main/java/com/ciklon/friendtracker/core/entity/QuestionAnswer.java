@@ -22,9 +22,14 @@ public class QuestionAnswer {
     @Column(nullable = false)
     private String answer;
 
-    public QuestionAnswer(String answer, Question question) {
+    @Column(nullable = false)
+    private boolean isPositive = true;
+
+
+    public QuestionAnswer(String answer, Question question, boolean isPositive) {
         this.answer = answer;
         this.question = question;
+        this.isPositive = isPositive;
         this.id = UUID.randomUUID();
     }
 }

@@ -10,6 +10,9 @@ public record QuestionAnswerDto(
         UUID id,
 
         @Schema(description = "Ответ на вопрос", example = "Часто")
-        String answer
+        String answer,
+
+        @Schema(description = "Положительный ли ответ", example = "true")
+        boolean isPositive
 ) {
 }
