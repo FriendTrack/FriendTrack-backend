@@ -1,14 +1,13 @@
 package com.ciklon.friendtracker.api.dto.enums;
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
-public enum FieldType {
-    TIME("TIME"),
-    EMPATHY("EMPATHY"),
-    TRUST("TRUST"),
-    COMMUNICATION("COMMUNICATION"),
-    RESPECT("RESPECT"),
+public enum RatingCalculationType {
+    FORMS("FORMS"),
+    QUESTIONS("QUESTIONS"),
     ALL("ALL");
 
     private final String value;

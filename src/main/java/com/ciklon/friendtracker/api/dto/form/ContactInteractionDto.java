@@ -2,6 +2,7 @@ package com.ciklon.friendtracker.api.dto.form;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import lombok.Getter;
 
 import java.util.UUID;
 
@@ -13,18 +14,18 @@ public record ContactInteractionDto(
         UUID contactId,
 
         @Schema(description = "Уровень уважения после взаимодействия")
-        Integer respect,
+        int respect,
 
         @Schema(description = "Уровень времени после взаимодействия")
-        Integer time,
+        int time,
 
         @Schema(description = "Уровень доверия после взаимодействия")
-        Integer trust,
+        int trust,
 
         @Schema(description = "Уровень проявленности эмоций после взаимодействия")
-        Integer empathy,
+        int empathy,
 
         @Schema(description = "Уровень успешности коммуникации после взаимодействия")
-        Integer communication
+        int communication
 ){
 }
