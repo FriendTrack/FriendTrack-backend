@@ -39,7 +39,6 @@ logging:
         security: TRACE
 
 rating:
-    default-rating: 0.0
     max-rating: 10.0
     min-rating: 0.0
     form-weight: 3

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Getter
@@ -31,11 +32,20 @@ public class UserAnswer {
     @JoinColumn(name = "answer_id")
     private QuestionAnswer questionAnswer;
 
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDate createdAt;
+
 
     public UserAnswer(Question question, QuestionAnswer questionAnswer, Contact contact, User user) {
         this.question = question;
         this.questionAnswer = questionAnswer;
         this.contact = contact;
         this.user = user;
+        this.createdAt = LocalDate.now();
+    }
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDate.now();
     }
 }

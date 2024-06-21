@@ -19,11 +19,11 @@ create table user_answers (
     user_id uuid not null,
     contact_id uuid not null,
     answer_id uuid not null,
+    created_at timestamp not null default now(),
     foreign key (question_id) references questions(id) on delete cascade,
     foreign key (user_id) references users(id) on delete cascade,
     foreign key (contact_id) references contacts(id) on delete cascade,
     foreign key (answer_id) references question_answers(id) on delete cascade
-
 );
 
 

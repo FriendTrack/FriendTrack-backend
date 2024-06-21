@@ -23,7 +23,7 @@ public class QuestionAnswer {
     private String answer;
 
     @Column(nullable = false)
-    private boolean isPositive = true;
+    private boolean isPositive;
 
 
     public QuestionAnswer(String answer, Question question, boolean isPositive) {
