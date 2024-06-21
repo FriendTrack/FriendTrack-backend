@@ -39,7 +39,7 @@ public class QuestionController {
     @GetMapping(ApiPaths.QUESTION)
     @Operation(summary = "Получение списка вопросов", description = "Получение списка вопросов.")
     public PaginationResponse<QuestionDto> getQuestions(
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size
     ) {
         page = page < 1 ? 1 : page;
@@ -56,7 +56,7 @@ public class QuestionController {
     @GetMapping(ApiPaths.USER_ANSWERS)
     @Operation(summary = "Получение ответов пользователя", description = "Получение всех ответов пользователя.")
     public PaginationResponse<UserAnswerDto> getAllUserAnswers(
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @RequestParam(value = "userId") UUID userId
     ) {
@@ -69,7 +69,7 @@ public class QuestionController {
     @Operation(summary = "Получение ответов пользователя по контакту", description = "Получение всех ответов " +
             "пользователя для конкретного контакта.")
     public PaginationResponse<UserAnswerDto> getUserAnswersByContactId(
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "10") int size,
             @PathVariable("id") UUID contactId
     ) {

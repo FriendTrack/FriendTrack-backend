@@ -11,10 +11,7 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
+
   flyway:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${FRIEND_TRACKER_DB:friend_tracker}
     user: ${POSTGRES_USER:postgres}
@@ -40,10 +37,6 @@ logging:
     org:
       springframework:
         security: TRACE
-      hibernate.SQL: DEBUG
-
-
-
 
 rating:
     default-rating: 0.0
