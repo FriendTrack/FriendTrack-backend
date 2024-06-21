@@ -6,7 +6,7 @@ import java.util.List;
 
 public class RatingPaginationResponse extends PaginationResponse<RatingDto> {
 
-    public RatingPaginationResponse(int size, int page, int totalPages, List<RatingDto> content) {
+    public RatingPaginationResponse(int page, int size, int totalPages, List<RatingDto> content) {
         super(size, page, totalPages, content);
     }
 }

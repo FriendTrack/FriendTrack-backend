@@ -10,7 +10,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,8 +29,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
         from UserAnswer ua
         where ua.user.id = :userId
         and (ua.question.fieldType = :fieldType or :fieldType = 'ALL')
-        and ua.createdAt between :fromDate and :toDate
     """)
-    List<UserAnswerForCalculationDto> findAllByUserIdAndDateBetweenAndFieldType(UUID userId, LocalDate fromDate, LocalDate toDate,
-                                                                                FieldType fieldType, Pageable pageable);
+    List<UserAnswerForCalculationDto> findAllByUserIdAndDateBetweenAndFieldType(
+            UUID userId, FieldType fieldType, Pageable pageable);
 }

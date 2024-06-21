@@ -2,13 +2,12 @@ package com.ciklon.friendtracker.api.dto.form;
 
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
 
 import java.util.UUID;
 
 public record ContactInteractionDto(
-        @Schema(description = "Идентификатор взаимодействия")
-        UUID interactionId,
+        @Schema(description = "Идентификатор формы")
+        UUID formId,
 
         @Schema(description = "Идентификатор контакта")
         UUID contactId,

@@ -26,9 +26,6 @@ import java.util.stream.Collectors;
 public class RatingService {
     private final ContactInteractionRepository contactInteractionRepository;
     private final UserAnswerRepository userAnswerRepository;
-
-    private final ContactInteractionMapper contactInteractionMapper;
-
     private final RatingProps ratingProps;
 
 /*
@@ -71,11 +68,8 @@ public class RatingService {
             RatingCalculationType ratingCalculationType
     ) {
         validateDates(fromDate, toDate);
-
-        List<RatingDto> ratings =
-                calculateRatings(userId, fromDate, toDate, fieldType, ratingCalculationType, page, size);
-
-        return new RatingPaginationResponse(size, page, ratings.size(), ratings);
+        List<RatingDto> ratings = calculateRatings(userId, fromDate, toDate, fieldType, ratingCalculationType, page, size);
+        return new RatingPaginationResponse(page, size, ratings.size() / size + 1, ratings);
     }
 
     private List<RatingDto> calculateRatings(
@@ -87,11 +81,11 @@ public class RatingService {
             int page,
             int size
     ) {
-        Pageable pageable = PageRequest.of(page, size);
+        Pageable pageable = PageRequest.of(page - 1, size);
 
         return switch (ratingCalculationType) {
             case FORMS -> calculateRatingsByForms(userId, fromDate, toDate, fieldType, pageable);
-            case QUESTIONS -> calculateRatingsByQuestions(userId, fromDate, toDate, fieldType, pageable);
+            case QUESTIONS -> calculateRatingsByQuestions(userId, fieldType, pageable);
             case ALL -> calculateRatingsByAll(userId, fromDate, toDate, fieldType, pageable);
         };
     }
@@ -105,7 +99,7 @@ public class RatingService {
                 .collect(Collectors.toMap(RatingDto::getContactId, rating -> rating));
 
         Map<UUID, RatingDto> ratingsByQuestions =
-                calculateRatingsByQuestions(userId, fromDate, toDate, fieldType, pageable)
+                calculateRatingsByQuestions(userId, fieldType, pageable)
                         .stream()
                         .collect(Collectors.toMap(RatingDto::getContactId, rating -> rating));
 
@@ -116,7 +110,9 @@ public class RatingService {
                                                    this::mapToRatingDtoWithWeights
                                            ));
 
-        return ratingsByForms.values().stream().toList();
+        return ratingsByForms.values().stream()
+                .peek(rating -> rating.setCalculationType(RatingCalculationType.ALL))
+                .toList();
     }
 
 
@@ -129,10 +125,7 @@ public class RatingService {
                                 fromDate,
                                 toDate,
                                 pageable
-                        )
-                        .stream()
-                        .map(contactInteractionMapper::map)
-                        .toList();
+                );
 
         Map<UUID, List<ContactInteractionDto>> contactInteractionsMap =
                 contactInteractions.stream().collect(Collectors.groupingBy(ContactInteractionDto::contactId));
@@ -200,10 +193,10 @@ public class RatingService {
     }
 
     private List<RatingDto> calculateRatingsByQuestions(
-            UUID userId, LocalDate fromDate, LocalDate toDate, FieldType fieldType, Pageable pageable
+            UUID userId, FieldType fieldType, Pageable pageable
     ) {
         List<UserAnswerForCalculationDto> userAnswersForCalculation = userAnswerRepository
-                .findAllByUserIdAndDateBetweenAndFieldType(userId, fromDate, toDate, fieldType, pageable);
+                .findAllByUserIdAndDateBetweenAndFieldType(userId, fieldType, pageable);
 
         Map<UUID, List<UserAnswerForCalculationDto>> userAnswersForCalculationMap =
                 userAnswersForCalculation.stream()
@@ -244,7 +237,26 @@ public class RatingService {
                 userAnswersForCalculation.forEach(userAnswerForCalculation -> ratingDto.setEmpathyRatingSum(
                         ratingDto.getEmpathyRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1)));
                 break;
+            case TIME:
+                userAnswersForCalculation.forEach(userAnswerForCalculation -> ratingDto.setTimeRatingSum(
+                        ratingDto.getTimeRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1)));
+                break;
+            case ALL:
+                userAnswersForCalculation.forEach(userAnswerForCalculation -> {
+                    ratingDto.setQuestionAnswerCount(ratingDto.getQuestionAnswerCount() + 1);
+                    ratingDto.setCommunicationRatingSum(
+                            ratingDto.getCommunicationRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1));
+                    ratingDto.setRespectRatingSum(
+                            ratingDto.getRespectRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1));
+                    ratingDto.setTrustRatingSum(
+                            ratingDto.getTrustRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1));
+                    ratingDto.setEmpathyRatingSum(
+                            ratingDto.getEmpathyRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1));
+                    ratingDto.setTimeRatingSum(
+                            ratingDto.getTimeRatingSum() + (userAnswerForCalculation.isPositive() ? 1 : -1));
 
+                });
+                break;
             default:
                 throw new CustomException(
                         ExceptionType.ILLEGAL,

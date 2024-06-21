@@ -15,7 +15,7 @@ public interface ContactInteractionMapper {
     
     ContactInteractionMapper INSTANCE = Mappers.getMapper(ContactInteractionMapper.class);
 
-    @Mapping(target = "interactionId", source = "id.formId")
+    @Mapping(target = "formId", source = "id.formId")
     @Mapping(target = "contactId", source = "id.contactId")
     ContactInteractionDto map(ContactInteraction contactInteraction);
 

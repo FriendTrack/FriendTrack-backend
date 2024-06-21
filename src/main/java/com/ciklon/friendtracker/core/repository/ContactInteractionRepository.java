@@ -17,21 +17,22 @@ import java.util.UUID;
 public interface ContactInteractionRepository extends JpaRepository<ContactInteraction, ContactInteractionId> {
     @Query("""
             select new com.ciklon.friendtracker.api.dto.form.ContactInteractionDto(
-                ci.id.contactId,
                 ci.id.formId,
-                ci.communication,
-                ci.empathy,
-                ci.trust,
+                ci.contact.id,
+                ci.respect,
                 ci.time,
-                ci.respect
+                ci.trust,
+                ci.empathy,
+                ci.communication
             )
             from ContactInteraction ci
             join ci.form f on ci.id.formId = f.id
             where f.user.id = :userId
-            and f.date between :fromDate and :toDate
+            and f.date >= :fromDate or :fromDate is null
+            and f.date <= :toDate or :toDate is null
             order by f.date desc
     """
     )
-    List<ContactInteraction> findAllByUserIdAndDateBetweenAndFieldType(UUID userId, LocalDate fromDate,
+    List<ContactInteractionDto> findAllByUserIdAndDateBetweenAndFieldType(UUID userId, LocalDate fromDate,
                                                                        LocalDate toDate, Pageable pageable);
 }

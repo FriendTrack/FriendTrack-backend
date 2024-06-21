@@ -33,7 +33,7 @@ public class RatingController {
             @ApiResponse(responseCode = "500", description = "Ошибка сервера")
     })
     public RatingPaginationResponse getRating(
-            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "page", defaultValue = "1") int page,
 
             @RequestParam(value = "size", defaultValue = "10") int size,
 
@@ -47,10 +47,12 @@ public class RatingController {
                     Тип поля (если выбрать, например, TIME и выбрать calculationType = FORMS, то другие поля будут равны 0)""",
                     example = "ALL",
                     allowableValues = {"TIME", "EMPATHY", "TRUST", "COMMUNICATION", "RESPECT", "ALL"})
-            @RequestParam(value = "fieldType", required = false) FieldType fieldType,
+            @RequestParam(value = "fieldType", required = false, defaultValue = "ALL"
+            ) FieldType fieldType,
 
             @Schema(description = "Тип расчета рейтинга", example = "ALL", allowableValues = {"FORMS", "QUESTIONS", "ALL"})
-            @RequestParam(value = "calculationType", required = false) RatingCalculationType calculationType
+            @RequestParam(value = "calculationType", required = false, defaultValue = "ALL")
+                    RatingCalculationType calculationType
 
     ) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
