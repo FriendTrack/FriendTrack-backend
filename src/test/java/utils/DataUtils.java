@@ -13,9 +13,6 @@ import com.ciklon.friendtracker.api.dto.rating.UserAnswerCreationDto;
 import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
 import com.ciklon.friendtracker.api.dto.user.RegistrationRequestDto;
 import com.ciklon.friendtracker.core.entity.*;
-import com.ciklon.friendtracker.core.entity.Contact;
-import com.ciklon.friendtracker.core.entity.Form;
-import com.ciklon.friendtracker.core.entity.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,15 +53,6 @@ public class DataUtils {
 
     public static ContactCreationDto getJohnDoeTransientContactCreationDto(){
         return new ContactCreationDto(
-                "John Doe",
-                "Some details",
-                "https://www.linkedin.com/in/johndoe",
-                LocalDate.now()
-        );
-    }
-
-    public static UpdateContactDto getFullJohnDoeTransientUpdateContactDto(){
-        return new UpdateContactDto(
                 "John Doe",
                 "Some details",
                 "https://www.linkedin.com/in/johndoe",
@@ -197,6 +185,86 @@ public class DataUtils {
                 questionAnswer,
                 contact,
                 user
+        );
+    }
+
+    public static List<Form> getFormEntityList(User user, List<Contact> contacts) {
+        return List.of(
+                new Form(
+                        UUID.randomUUID(),
+                        MoodType.HAPPY,
+                        LocalDate.now(),
+                        user,
+                        2,
+                        LocalDateTime.now(),
+                        LocalDateTime.now(),
+                        Collections.emptyList()
+                ),
+                new Form(UUID.randomUUID(), MoodType.NEUTRAL, LocalDate.now(), user, 2, LocalDateTime.now(),
+                         LocalDateTime.now(), Collections.emptyList()
+                )
+        );
+    }
+
+    public static List<ContactInteraction> getContactInteractionEntityList(Form form, List<Contact> contacts) {
+        return contacts.stream().map(contact -> new ContactInteraction(
+                contact,
+                form,
+                (int) (Math.random() * 10),
+                (int) (Math.random() * 10),
+                (int) (Math.random() * 10),
+                (int) (Math.random() * 10),
+                (int) (Math.random() * 10)
+        )).toList();
+    }
+
+    public static List<Question> getQuestionList() {
+        return List.of(
+                new Question(UUID.randomUUID(), "Question 1", FieldType.COMMUNICATION, Collections.emptyList()),
+                new Question(UUID.randomUUID(), "Question 2", FieldType.EMPATHY, Collections.emptyList()),
+                new Question(UUID.randomUUID(), "Question 3", FieldType.TRUST, Collections.emptyList())
+        );
+    }
+
+    public static List<QuestionAnswer> getFirstQuestionAnswerList(Question question) {
+        return List.of(
+                new QuestionAnswer("Answer 1",question, true),
+                new QuestionAnswer("Answer 2",question, false),
+                new QuestionAnswer("Answer 3",question, false),
+                new QuestionAnswer("Answer 4",question, false)
+        );
+
+    }
+
+    public static List<QuestionAnswer> getSecondQuestionAnswerList(Question question) {
+        return List.of(
+                new QuestionAnswer("Answer 1",question, false),
+                new QuestionAnswer("Answer 2",question, true),
+                new QuestionAnswer("Answer 3",question, false),
+                new QuestionAnswer("Answer 4",question, false)
+        );
+    }
+
+    public static List<QuestionAnswer> getThirdQuestionAnswerList(Question question) {
+        return List.of(
+                new QuestionAnswer("Answer 1",question, false),
+                new QuestionAnswer("Answer 2",question, false),
+                new QuestionAnswer("Answer 3",question, true),
+                new QuestionAnswer("Answer 4",question, false),
+                new QuestionAnswer("Answer 5",question, false),
+                new QuestionAnswer("Answer 6",question, false)
+        );
+    }
+
+    public static List<UserAnswer> getUserAnswerList(User user, List<Question> questions,
+                                                  List<QuestionAnswer> questionAnswers, List<Contact> contacts) {
+        return List.of(
+                new UserAnswer(questions.get(0), questionAnswers.get(0), contacts.get(0), user),
+                new UserAnswer(questions.get(0), questionAnswers.get(1), contacts.get(1), user),
+                new UserAnswer(questions.get(1), questionAnswers.get(2), contacts.get(0), user),
+                new UserAnswer(questions.get(1), questionAnswers.get(3), contacts.get(1), user),
+                new UserAnswer(questions.get(2), questionAnswers.get(4), contacts.get(0), user),
+                new UserAnswer(questions.get(2), questionAnswers.get(5), contacts.get(1), user)
         );
     }
 }

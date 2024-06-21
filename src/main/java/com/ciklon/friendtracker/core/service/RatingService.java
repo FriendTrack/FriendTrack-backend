@@ -7,7 +7,6 @@ import com.ciklon.friendtracker.api.dto.rating.*;
 import com.ciklon.friendtracker.common.exception.CustomException;
 import com.ciklon.friendtracker.common.exception.ExceptionType;
 import com.ciklon.friendtracker.core.constant.RatingProps;
-import com.ciklon.friendtracker.core.mapper.ContactInteractionMapper;
 import com.ciklon.friendtracker.core.repository.ContactInteractionRepository;
 import com.ciklon.friendtracker.core.repository.UserAnswerRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,7 +68,7 @@ public class RatingService {
     ) {
         validateDates(fromDate, toDate);
         List<RatingDto> ratings = calculateRatings(userId, fromDate, toDate, fieldType, ratingCalculationType, page, size);
-        return new RatingPaginationResponse(page, size, ratings.size() / size + 1, ratings);
+        return new RatingPaginationResponse(size, page, ratings.size() / size + 1, ratings);
     }
 
     private List<RatingDto> calculateRatings(
@@ -269,6 +268,9 @@ public class RatingService {
 
     private RatingDto mapToRatingDto(QuestionAnswersRatingDto dto) {
         int questionAnswerCount = dto.getQuestionAnswerCount();
+        if (questionAnswerCount == 0) {
+            return new RatingDto(dto.getContactId(), RatingCalculationType.QUESTIONS, 0, 0, 0, 0, 0, 0, 0);
+        }
         return new RatingDto(
                 dto.getContactId(),
                 RatingCalculationType.QUESTIONS,
@@ -284,6 +286,9 @@ public class RatingService {
 
     private RatingDto mapToRatingDto(ContactInteractionsRatingDto dto) {
         int interactionCount = dto.getInteractionCount();
+        if (interactionCount == 0) {
+            return new RatingDto(dto.getContactId(), RatingCalculationType.FORMS, 0, 0, 0, 0, 0, 0, 0);
+        }
         return new RatingDto(
                 dto.getContactId(),
                 RatingCalculationType.FORMS,
@@ -327,6 +332,9 @@ public class RatingService {
             int interactionCount,
             int answerCount
     ) {
+        if (interactionCount == 0 && answerCount == 0) {
+            return 0;
+        }
         double weightedValue = (interactionRating * ratingProps.getInteractionWeight() +
                         answerRating * ratingProps.getAnswerWeight()) / (interactionCount + answerCount);
         return Math.max(ratingProps.getMinRating(), Math.min(ratingProps.getMaxRating(), weightedValue));

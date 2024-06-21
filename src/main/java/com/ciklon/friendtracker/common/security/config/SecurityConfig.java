@@ -51,6 +51,7 @@ public class SecurityConfig {
                                         request.requestMatchers(AUTH_WHITELIST).permitAll()
                                                 .requestMatchers(HttpMethod.POST, ApiPaths.REGISTER).permitAll()
                                                 .requestMatchers(HttpMethod.POST, ApiPaths.LOGIN).permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/v1/fill-database").permitAll()
                                                 .anyRequest().authenticated()
                 )
                 .anonymous(AbstractHttpConfigurer::disable)

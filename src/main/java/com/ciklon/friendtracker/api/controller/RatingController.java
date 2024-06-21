@@ -38,10 +38,10 @@ public class RatingController {
             @RequestParam(value = "size", defaultValue = "10") int size,
 
             @Schema(description = "Дата начала периода", example = "2021-01-01")
-            @RequestParam(value = "fromDate", required = false) LocalDate fromDate,
+            @RequestParam(value = "fromDate", required = false, defaultValue = "2000-01-01") LocalDate fromDate,
 
-            @Schema(description = "Дата окончания периода", example = "2021-01-01")
-            @RequestParam(value = "toDate", required = false) LocalDate toDate,
+            @Schema(description = "Дата окончания периода", example = "2025-01-01")
+            @RequestParam(value = "toDate", required = false, defaultValue = "2025-01-01") LocalDate toDate,
 
             @Schema(description = """
                     Тип поля (если выбрать, например, TIME и выбрать calculationType = FORMS, то другие поля будут равны 0)""",
