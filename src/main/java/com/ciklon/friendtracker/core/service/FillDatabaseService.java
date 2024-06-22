@@ -3,7 +3,6 @@ package com.ciklon.friendtracker.core.service;
 import com.ciklon.friendtracker.api.dto.contact.ContactCreationDto;
 import com.ciklon.friendtracker.api.dto.contact.UpdateContactDto;
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
-import com.ciklon.friendtracker.api.dto.enums.MoodType;
 import com.ciklon.friendtracker.api.dto.form.ContactInteractionCreationDto;
 import com.ciklon.friendtracker.api.dto.form.FormCreationDto;
 import com.ciklon.friendtracker.api.dto.question.QuestionAnswerCreationDto;
@@ -176,7 +175,6 @@ public class FillDatabaseService {
 
         public static FormCreationDto getFormCreationDto(List<UUID> contactIds) {
             return new FormCreationDto(
-                    MoodType.HAPPY,
                     LocalDate.now(),
                     2,
                     List.of(
@@ -191,7 +189,6 @@ public class FillDatabaseService {
         public static Form getFormEntity(User user, Integer contactInteractionCount) {
             return new Form(
                     UUID.randomUUID(),
-                    MoodType.HAPPY,
                     LocalDate.now(),
                     user,
                     contactInteractionCount,
@@ -272,7 +269,6 @@ public class FillDatabaseService {
             return List.of(
                     new Form(
                             UUID.randomUUID(),
-                            MoodType.HAPPY,
                             LocalDate.now(),
                             user,
                             2,
@@ -280,7 +276,7 @@ public class FillDatabaseService {
                             LocalDateTime.now(),
                             Collections.emptyList()
                     ),
-                    new Form(UUID.randomUUID(), MoodType.NEUTRAL, LocalDate.now(), user, 2, LocalDateTime.now(),
+                    new Form(UUID.randomUUID(), LocalDate.now(), user, 2, LocalDateTime.now(),
                              LocalDateTime.now(), Collections.emptyList()
                     )
             );
