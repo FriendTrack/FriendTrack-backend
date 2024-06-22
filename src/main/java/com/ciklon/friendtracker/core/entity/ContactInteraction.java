@@ -30,23 +30,23 @@ public class ContactInteraction {
     private Contact contact;
 
     @Min(0)
-    @Max(10)
+    @Max(5)
     private Integer communication = 0;
 
     @Min(0)
-    @Max(10)
+    @Max(5)
     private Integer empathy = 0;
 
     @Min(0)
-    @Max(10)
+    @Max(5)
     private Integer trust = 0;
 
     @Min(0)
-    @Max(10)
+    @Max(5)
     private Integer time = 0;
 
     @Min(0)
-    @Max(10)
+    @Max(5)
     private Integer respect = 0;
 
     public ContactInteraction(

@@ -43,17 +43,6 @@ public class RatingDto {
     @Schema(description = "Тип расчета рейтинга", example = "ALL")
     private RatingCalculationType calculationType;
 
-    public RatingDto(UUID contactId, RatingCalculationType ratingCalculationType) {
-        this.contactId = contactId;
-        this.calculationType = ratingCalculationType;
-
-        this.interactionCount = 0;
-        this.questionAnswerCount = 0;
-        this.timeRating = 0;
-        this.communicationRating = 0;
-        this.respectRating = 0;
-        this.trustRating = 0;
-    }
 
     public RatingDto(
             UUID contactId,

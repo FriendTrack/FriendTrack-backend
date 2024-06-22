@@ -101,7 +101,7 @@ public class DataUtils {
                 2,
                 List.of(
                         new ContactInteractionCreationDto(contactIds.get(0),
-                                0, 1, 10, 1, 5),
+                                0, 1, 5, 1, 5),
                         new ContactInteractionCreationDto(contactIds.get(1),
                                 10, 0, 0, 0, 0)
                 )
