@@ -32,4 +32,44 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
     """)
     List<UserAnswerForCalculationDto> findAllByUserIdAndDateBetweenAndFieldType(
             UUID userId, FieldType fieldType, Pageable pageable);
+
+    @Query("""
+        select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
+            ua.id,
+            ua.contact.id,
+            ua.question.fieldType,
+            ua.questionAnswer.isPositive
+        )
+        from UserAnswer ua
+        where ua.user.id = :userId
+        and ua.contact.id = :contactId
+        and (ua.question.fieldType = :fieldType or :fieldType = 'ALL')
+    """)
+    List<UserAnswerForCalculationDto> findAllByUserIdAndContactIdAndFieldType(
+            UUID userId, UUID contactId, FieldType fieldType);
+
+    @Query("""
+        select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
+            ua.id,
+            ua.contact.id,
+            ua.question.fieldType,
+            ua.questionAnswer.isPositive
+        )
+        from UserAnswer ua
+        where ua.user.id = :userId
+        and (ua.question.fieldType = :fieldType or :fieldType = 'ALL')
+    """)
+    List<UserAnswerForCalculationDto> findAllByUserIdAndFieldType(UUID userId, FieldType fieldType);
+
+    @Query("""
+        select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
+            ua.id,
+            ua.contact.id,
+            ua.question.fieldType,
+            ua.questionAnswer.isPositive
+        )
+        from UserAnswer ua
+        where ua.user.id = :userId
+    """)
+    List<UserAnswerForCalculationDto> findAllByUserId(UUID userId);
 }

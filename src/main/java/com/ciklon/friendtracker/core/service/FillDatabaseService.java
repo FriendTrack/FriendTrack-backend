@@ -179,9 +179,9 @@ public class FillDatabaseService {
                     2,
                     List.of(
                             new ContactInteractionCreationDto(contactIds.get(0),
-                                                              0, 1, 10, 1, 5),
+                                                              0, 1, 0, 1, 5),
                             new ContactInteractionCreationDto(contactIds.get(1),
-                                                              10, 0, 0, 0, 0)
+                                                              3, 0, 0, 0, 0)
                     )
             );
         }

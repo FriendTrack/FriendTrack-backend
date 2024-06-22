@@ -39,7 +39,7 @@ logging:
         security: TRACE
 
 rating:
-    max-rating: 10.0
+    max-rating: 5.0
     min-rating: 0.0
-    form-weight: 3
+    form-weight: 2
     question-weight: 1
