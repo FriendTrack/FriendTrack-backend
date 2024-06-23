@@ -27,7 +27,7 @@ public class Contact {
     @Column(length = 200)
     private String details;
 
-    @Column(length = 300)
+    @Column
     private String link;
 
     @Column(columnDefinition = "TIMESTAMP")

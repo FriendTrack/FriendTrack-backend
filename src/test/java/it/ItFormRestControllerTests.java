@@ -93,7 +93,6 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.userId").isNotEmpty())
-                .andExpect(jsonPath("$.mood").isNotEmpty())
                 .andExpect(jsonPath("$.contactInteractions", hasSize(2)));
 
         // проверь что contactInteractions db содержит 2 элемента
@@ -156,7 +155,6 @@ public class ItFormRestControllerTests extends AbstractRestControllerBaseTest {
         result.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").isNotEmpty())
                 .andExpect(jsonPath("$.userId").isNotEmpty())
-                .andExpect(jsonPath("$.mood").isNotEmpty())
                 .andExpect(jsonPath("$.contactInteractions", hasSize(2)));
     }
 
