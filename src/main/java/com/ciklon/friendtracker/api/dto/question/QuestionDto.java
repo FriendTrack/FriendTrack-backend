@@ -3,7 +3,6 @@ package com.ciklon.friendtracker.api.dto.question;
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import java.util.List;
 import java.util.UUID;
 
 public record QuestionDto(
@@ -15,9 +14,6 @@ public record QuestionDto(
         String question,
 
         @Schema(description = "Тип поля, на который будут начислен рейтинг", example = "COMMUNICATION")
-        FieldType fieldType,
-
-        @Schema(description = "Возможные ответы на вопросы")
-        List<QuestionAnswerDto> answers
+        FieldType fieldType
 ) {
 }

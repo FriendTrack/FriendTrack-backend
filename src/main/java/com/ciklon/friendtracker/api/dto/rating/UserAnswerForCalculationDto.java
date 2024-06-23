@@ -16,7 +16,7 @@ public record UserAnswerForCalculationDto(
         @Schema(description = "Тип поля, на который будут начислен рейтинг", example = "COMMUNICATION")
         FieldType fieldType,
 
-        @Schema(description = "Флаг, указывающий на то, является ли ответ положительным")
-        boolean isPositive
+        @Schema(description = "Выбранное пользователем значение в качестве ответа",  example = "5")
+        int value
 ) {
 }

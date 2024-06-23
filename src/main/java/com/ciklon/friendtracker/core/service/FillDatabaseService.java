@@ -36,7 +36,6 @@ public class FillDatabaseService {
 
     private QuestionRepository questionRepository;
 
-    private QuestionAnswerRepository questionAnswerRepository;
 
     private FormRepository formRepository;
 
@@ -47,8 +46,7 @@ public class FillDatabaseService {
         List<Contact> contacts = createContactsAndGetList(user);
         createFormsAndContactInteractions(user, contacts);
         List<Question> questions = createQuestionsAndAnswers();
-        List<QuestionAnswer> questionAnswers = createQuestionAnswers(questions);
-        createUserAnswers(user, questions, questionAnswers, contacts);
+        createUserAnswers(user, questions, contacts);
     }
 
     private List<Contact> createContactsAndGetList(User user) {
@@ -77,24 +75,14 @@ public class FillDatabaseService {
         );
     }
 
-    private List<QuestionAnswer> createQuestionAnswers(List<Question> questions) {
-        List<QuestionAnswer> questionAnswersForCreation =
-                new ArrayList<>(DataUtils.getFirstQuestionAnswerList(questions.get(0)));
-        questionAnswersForCreation.addAll(DataUtils.getSecondQuestionAnswerList(questions.get(1)));
-        questionAnswersForCreation.addAll(DataUtils.getThirdQuestionAnswerList(questions.get(2)));
-        return questionAnswerRepository.saveAll(
-                questionAnswersForCreation
-        );
-    }
 
     private void createUserAnswers(
             User user,
             List<Question> questions,
-            List<QuestionAnswer> questionAnswers,
             List<Contact> contacts
     ) {
         userAnswerRepository.saveAll(
-                DataUtils.getUserAnswerList(user, questions, questionAnswers, contacts)
+                DataUtils.getUserAnswerList(user, questions, contacts)
         );
     }
 
@@ -201,11 +189,7 @@ public class FillDatabaseService {
         public static QuestionCreationDto getQuestionCreationDto() {
             return new QuestionCreationDto(
                     "Question text",
-                    FieldType.COMMUNICATION,
-                    List.of(
-                            new QuestionAnswerCreationDto("Answer 1", true),
-                            new QuestionAnswerCreationDto("Answer 2", false)
-                    )
+                    FieldType.COMMUNICATION
             );
         }
 
@@ -213,19 +197,14 @@ public class FillDatabaseService {
         public static QuestionCreationDto getQuestionCreationDtoWithEmptyAnswers() {
             return new QuestionCreationDto(
                     "Question text",
-                    FieldType.COMMUNICATION,
-                    Collections.emptyList()
+                    FieldType.COMMUNICATION
             );
         }
 
         public static QuestionCreationDto getQuestionCreationDtoWithEmptyQuestion() {
             return new QuestionCreationDto(
                     null,
-                    FieldType.COMMUNICATION,
-                    List.of(
-                            new QuestionAnswerCreationDto("Answer 1", true),
-                            new QuestionAnswerCreationDto("Answer 2", false)
-                    )
+                    FieldType.COMMUNICATION
             );
         }
 
@@ -233,33 +212,25 @@ public class FillDatabaseService {
             return new Question(
                     UUID.randomUUID(),
                     "Question text",
-                    FieldType.COMMUNICATION,
-                    Collections.emptyList()
-            );
-        }
-
-        public static List<QuestionAnswer> getQuestionAnswerEntities(Question question) {
-            return List.of(
-                    new QuestionAnswer(UUID.randomUUID(), question, "Answer 1", true),
-                    new QuestionAnswer(UUID.randomUUID(), question, "Answer 2", false)
+                    FieldType.COMMUNICATION
             );
         }
 
         public static UserAnswerCreationDto getUserAnswerCreationDto(
-                UUID questionId, UUID answerId, UUID contactId
+                UUID questionId, UUID contactId
         ) {
             return new UserAnswerCreationDto(
                     questionId,
                     contactId,
-                    answerId
+                    4
             );
         }
 
 
-        public static UserAnswer getUserAnswerEntity(Contact contact, Question question, QuestionAnswer questionAnswer, User user) {
+        public static UserAnswer getUserAnswerEntity(Contact contact, Question question, User user) {
             return new UserAnswer(
                     question,
-                    questionAnswer,
+                    4,
                     contact,
                     user
             );
@@ -286,61 +257,30 @@ public class FillDatabaseService {
             return contacts.stream().map(contact -> new ContactInteraction(
                     contact,
                     form,
-                    (int) (Math.random() * 10),
-                    (int) (Math.random() * 10),
-                    (int) (Math.random() * 10),
-                    (int) (Math.random() * 10),
-                    (int) (Math.random() * 10)
+                    (int) (Math.random() * 5),
+                    (int) (Math.random() * 5),
+                    (int) (Math.random() * 5),
+                    (int) (Math.random() * 5),
+                    (int) (Math.random() * 5)
             )).toList();
         }
 
         public static List<Question> getQuestionList() {
             return List.of(
-                    new Question(UUID.randomUUID(), "Question 1", FieldType.COMMUNICATION, Collections.emptyList()),
-                    new Question(UUID.randomUUID(), "Question 2", FieldType.EMPATHY, Collections.emptyList()),
-                    new Question(UUID.randomUUID(), "Question 3", FieldType.TRUST, Collections.emptyList())
+                    new Question(UUID.randomUUID(), "Question 1", FieldType.COMMUNICATION),
+                    new Question(UUID.randomUUID(), "Question 2", FieldType.EMPATHY),
+                    new Question(UUID.randomUUID(), "Question 3", FieldType.TRUST)
             );
         }
 
-        public static List<QuestionAnswer> getFirstQuestionAnswerList(Question question) {
+        public static List<UserAnswer> getUserAnswerList(User user, List<Question> questions, List<Contact> contacts) {
             return List.of(
-                    new QuestionAnswer("Answer 1",question, true),
-                    new QuestionAnswer("Answer 2",question, false),
-                    new QuestionAnswer("Answer 3",question, false),
-                    new QuestionAnswer("Answer 4",question, false)
-            );
-
-        }
-
-        public static List<QuestionAnswer> getSecondQuestionAnswerList(Question question) {
-            return List.of(
-                    new QuestionAnswer("Answer 1",question, false),
-                    new QuestionAnswer("Answer 2",question, true),
-                    new QuestionAnswer("Answer 3",question, false),
-                    new QuestionAnswer("Answer 4",question, false)
-            );
-        }
-
-        public static List<QuestionAnswer> getThirdQuestionAnswerList(Question question) {
-            return List.of(
-                    new QuestionAnswer("Answer 1",question, false),
-                    new QuestionAnswer("Answer 2",question, false),
-                    new QuestionAnswer("Answer 3",question, true),
-                    new QuestionAnswer("Answer 4",question, false),
-                    new QuestionAnswer("Answer 5",question, false),
-                    new QuestionAnswer("Answer 6",question, false)
-            );
-        }
-
-        public static List<UserAnswer> getUserAnswerList(User user, List<Question> questions,
-                                                         List<QuestionAnswer> questionAnswers, List<Contact> contacts) {
-            return List.of(
-                    new UserAnswer(questions.get(0), questionAnswers.get(0), contacts.get(0), user),
-                    new UserAnswer(questions.get(0), questionAnswers.get(1), contacts.get(1), user),
-                    new UserAnswer(questions.get(1), questionAnswers.get(2), contacts.get(0), user),
-                    new UserAnswer(questions.get(1), questionAnswers.get(3), contacts.get(1), user),
-                    new UserAnswer(questions.get(2), questionAnswers.get(4), contacts.get(0), user),
-                    new UserAnswer(questions.get(2), questionAnswers.get(5), contacts.get(1), user)
+                    new UserAnswer(questions.get(0), 5, contacts.get(0), user),
+                    new UserAnswer(questions.get(0), 3, contacts.get(1), user),
+                    new UserAnswer(questions.get(1), 2, contacts.get(0), user),
+                    new UserAnswer(questions.get(1), 4, contacts.get(1), user),
+                    new UserAnswer(questions.get(2), 2, contacts.get(0), user),
+                    new UserAnswer(questions.get(2), 1, contacts.get(1), user)
             );
         }
     }
