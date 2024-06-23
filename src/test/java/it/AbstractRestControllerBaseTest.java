@@ -35,6 +35,6 @@ public abstract class AbstractRestControllerBaseTest {
         registry.add("spring.datasource.password", POSTGRE_SQL_CONTAINER::getPassword);
 
         registry.add("spring.redis.host", REDIS_CONTAINER::getHost);
-        registry.add("spring.redis.port", () -> REDIS_CONTAINER.getMappedPort(6379));
+        registry.add("spring.redis.port", () -> REDIS_CONTAINER.getMappedPort(6380));
     }
 }
