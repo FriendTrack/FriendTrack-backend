@@ -4,15 +4,16 @@ import com.ciklon.friendtracker.FriendTrackerApplication;
 import com.ciklon.friendtracker.api.constant.ApiPaths;
 import com.ciklon.friendtracker.api.dto.user.JwtAuthorityDto;
 import com.ciklon.friendtracker.api.dto.user.LoginRequestDto;
-import com.ciklon.friendtracker.core.entity.*;
+import com.ciklon.friendtracker.core.entity.Contact;
+import com.ciklon.friendtracker.core.entity.Form;
+import com.ciklon.friendtracker.core.entity.Question;
+import com.ciklon.friendtracker.core.entity.User;
 import com.ciklon.friendtracker.core.repository.*;
 import com.ciklon.friendtracker.core.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +24,6 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import utils.DataUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,7 +36,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = {FriendTrackerApplication.class})
 public class ItRatingRestControllerTests extends AbstractRestControllerBaseTest {
-    private static final Logger log = LoggerFactory.getLogger(ItRatingRestControllerTests.class);
     @Autowired
     private MockMvc mockMvc;
 
@@ -58,8 +57,6 @@ public class ItRatingRestControllerTests extends AbstractRestControllerBaseTest 
     @Autowired
     private QuestionRepository questionRepository;
 
-    @Autowired
-    private QuestionAnswerRepository questionAnswerRepository;
 
     @Autowired
     private FormRepository formRepository;
@@ -111,8 +108,7 @@ public class ItRatingRestControllerTests extends AbstractRestControllerBaseTest 
         List<Contact> contacts = createContactsAndGetList(user);
         createFormsAndContactInteractions(user, contacts);
         List<Question> questions = createQuestionsAndAnswers();
-        List<QuestionAnswer> questionAnswers = createQuestionAnswers(questions);
-        createUserAnswers(user, questions, questionAnswers, contacts);
+        createUserAnswers(user, questions, contacts);
     }
 
 
@@ -151,24 +147,13 @@ public class ItRatingRestControllerTests extends AbstractRestControllerBaseTest 
 
     }
 
-    private List<QuestionAnswer> createQuestionAnswers(List<Question> questions) {
-        List<QuestionAnswer> questionAnswersForCreation =
-                new ArrayList<>(DataUtils.getFirstQuestionAnswerList(questions.get(0)));
-        questionAnswersForCreation.addAll(DataUtils.getSecondQuestionAnswerList(questions.get(1)));
-        questionAnswersForCreation.addAll(DataUtils.getThirdQuestionAnswerList(questions.get(2)));
-        return questionAnswerRepository.saveAll(
-                questionAnswersForCreation
-        );
-    }
-
     private void createUserAnswers(
             User user,
             List<Question> questions,
-            List<QuestionAnswer> questionAnswers,
             List<Contact> contacts
     ) {
         userAnswerRepository.saveAll(
-                DataUtils.getUserAnswerList(user, questions, questionAnswers, contacts)
+                DataUtils.getUserAnswerList(user, questions, contacts)
         );
     }
 
