@@ -14,6 +14,5 @@ public interface UserAnswerMapper {
 
     @Mapping(target = "questionId", source = "userAnswer.question.id")
     @Mapping(target = "contactId", source = "userAnswer.contact.id")
-    @Mapping(target = "answerId", source = "userAnswer.questionAnswer.id")
     UserAnswerDto map(UserAnswer userAnswer);
 }

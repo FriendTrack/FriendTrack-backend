@@ -24,7 +24,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.questionAnswer.isPositive
+            ua.value
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -38,7 +38,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.questionAnswer.isPositive
+            ua.value
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -53,7 +53,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.questionAnswer.isPositive
+            ua.value
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -66,7 +66,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.questionAnswer.isPositive
+            ua.value
         )
         from UserAnswer ua
         where ua.user.id = :userId

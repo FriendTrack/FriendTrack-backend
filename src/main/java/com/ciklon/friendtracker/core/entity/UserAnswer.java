@@ -28,17 +28,16 @@ public class UserAnswer {
     @JoinColumn(name = "contact_id")
     private Contact contact;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "answer_id")
-    private QuestionAnswer questionAnswer;
+    @Column(nullable = false)
+    private int value;
 
     @Column(columnDefinition = "TIMESTAMP")
     private LocalDate createdAt;
 
 
-    public UserAnswer(Question question, QuestionAnswer questionAnswer, Contact contact, User user) {
+    public UserAnswer(Question question, int value, Contact contact, User user) {
         this.question = question;
-        this.questionAnswer = questionAnswer;
+        this.value = value;
         this.contact = contact;
         this.user = user;
         this.createdAt = LocalDate.now();

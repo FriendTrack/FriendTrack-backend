@@ -29,7 +29,4 @@ public class Question {
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private FieldType fieldType;
-
-    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<QuestionAnswer> answers;
 }
