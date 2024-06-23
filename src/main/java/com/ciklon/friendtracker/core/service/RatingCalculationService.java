@@ -17,7 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -27,6 +26,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RatingCalculationService {
 
+    private final int METRIC_COUNT = 5;
     private final ContactInteractionRepository contactInteractionRepository;
     private final UserAnswerRepository userAnswerRepository;
     private final RatingMapper ratingMapper;
@@ -155,37 +155,38 @@ public class RatingCalculationService {
             UUID contactId, List<UserAnswerForCalculationDto> userAnswersForCalculation, FieldType fieldType
     ) {
         QuestionAnswersRatingDto ratingDto = new QuestionAnswersRatingDto(contactId);
-
+        if (userAnswersForCalculation == null || userAnswersForCalculation.isEmpty()) {
+            return ratingDto;
+        }
         switch (fieldType) {
             case COMMUNICATION:
                 userAnswersForCalculation.forEach(dto -> ratingDto.setCommunicationRatingSum(
-                        ratingDto.getCommunicationRatingSum() + (dto.isPositive() ? 1 : -1)));
+                        ratingDto.getCommunicationRatingSum() + dto.value()));
                 break;
             case RESPECT:
                 userAnswersForCalculation.forEach(dto -> ratingDto.setRespectRatingSum(
-                        ratingDto.getRespectRatingSum() + (dto.isPositive() ? 1 : -1)));
+                        ratingDto.getRespectRatingSum() + dto.value()));
                 break;
             case TRUST:
                 userAnswersForCalculation.forEach(dto -> ratingDto.setTrustRatingSum(
-                        ratingDto.getTrustRatingSum() + (dto.isPositive() ? 1 : -1)));
+                        ratingDto.getTrustRatingSum() + dto.value()));
                 break;
             case EMPATHY:
                 userAnswersForCalculation.forEach(dto -> ratingDto.setEmpathyRatingSum(
-                        ratingDto.getEmpathyRatingSum() + (dto.isPositive() ? 1 : -1)));
+                        ratingDto.getEmpathyRatingSum() + dto.value()));
                 break;
             case TIME:
                 userAnswersForCalculation.forEach(dto -> ratingDto.setTimeRatingSum(
-                        ratingDto.getTimeRatingSum() + (dto.isPositive() ? 1 : -1)));
+                        ratingDto.getTimeRatingSum() + dto.value()));
                 break;
             case ALL:
                 userAnswersForCalculation.forEach(dto -> {
                     ratingDto.setQuestionAnswerCount(ratingDto.getQuestionAnswerCount() + 1);
-                    ratingDto.setCommunicationRatingSum(
-                            ratingDto.getCommunicationRatingSum() + (dto.isPositive() ? 1 : -1));
-                    ratingDto.setRespectRatingSum(ratingDto.getRespectRatingSum() + (dto.isPositive() ? 1 : -1));
-                    ratingDto.setTrustRatingSum(ratingDto.getTrustRatingSum() + (dto.isPositive() ? 1 : -1));
-                    ratingDto.setEmpathyRatingSum(ratingDto.getEmpathyRatingSum() + (dto.isPositive() ? 1 : -1));
-                    ratingDto.setTimeRatingSum(ratingDto.getTimeRatingSum() + (dto.isPositive() ? 1 : -1));
+                    ratingDto.setCommunicationRatingSum(ratingDto.getCommunicationRatingSum() + dto.value());
+                    ratingDto.setRespectRatingSum(ratingDto.getRespectRatingSum() + dto.value());
+                    ratingDto.setTrustRatingSum(ratingDto.getTrustRatingSum() + dto.value());
+                    ratingDto.setEmpathyRatingSum(ratingDto.getEmpathyRatingSum() + dto.value());
+                    ratingDto.setTimeRatingSum(ratingDto.getTimeRatingSum() + dto.value());
                 });
                 break;
             default:
@@ -235,7 +236,7 @@ public class RatingCalculationService {
         List<UserAnswerForCalculationDto> userAnswersForCalculation =
                 userAnswerRepository.findAllByUserIdAndContactIdAndFieldType(userId, contactId, fieldType);
 
-        if (userAnswersForCalculation.isEmpty()) {
+        if (userAnswersForCalculation == null || userAnswersForCalculation.isEmpty()) {
             return new RatingDto(contactId, RatingCalculationType.QUESTIONS, 0, 0, 0, 0, 0, 0, 0);
         }
 
@@ -293,32 +294,30 @@ public class RatingCalculationService {
             List<UserAnswerForCalculationDto> userAnswersForCalculation
     ) {
         AverageRatingDto averageRatingDto = new AverageRatingDto(contactId);
+        if (contactInteractions == null) {
+            contactInteractions = List.of();
+        }
+        if (userAnswersForCalculation == null) {
+            userAnswersForCalculation = List.of();
+        }
 
         if (contactInteractions.isEmpty() && userAnswersForCalculation.isEmpty()) {
             return averageRatingDto;
         }
 
-        contactInteractions.sort((first, second) -> second.date()
-                .compareTo(first.date())); // сортируем, чтобы взять последнее взаимодействие
-        ExtendedContactInteractionDto lastInteraction =
-                contactInteractions.removeLast(); // берем последнее взаимодействие
+        contactInteractions.sort((first, second) -> second.date().compareTo(first.date()));
+        ExtendedContactInteractionDto lastInteraction = contactInteractions.removeLast();
 
         int interactionCount = contactInteractions.size();
-        double[] interactionSums =
-                calculateRatingSums(contactInteractions); // считаем суммы рейтингов по взаимодействиям
-        double totalWeightedSum =
-                Arrays.stream(interactionSums).sum() * ratingProps.getInteractionWeight() +
-                        calculateUserAnswerSum(userAnswersForCalculation); // считаем общую сумму рейтингов
+        double interactionWeightedSums = calculateWeightedRatingSumByInteractions(contactInteractions); // сумма всех взвешенных оценок по взаимодействиям
+        double userAnswerWeightedSums = calculateWeightedUserAnswerSum(userAnswersForCalculation); // сумма всех взвешенных оценок по ответам на вопросы
+        double lastInteractionWeightedSum = calculateWeightedLastInteractionSum(lastInteraction); // взвешенная оценка последнего взаимодействия
 
-        int totalWeightedCount =
-                (int) ((interactionCount * ratingProps.getInteractionWeight()) + userAnswersForCalculation.size());
+        double totalWeightedSum = calculateTotalWeightedSum(interactionWeightedSums, userAnswerWeightedSums); // общая сумма взвешенных оценок
+        double totalWeightedCount = calculateTotalWeightedCount(interactionCount, userAnswersForCalculation.size()); // общее количество взвешенных оценок
 
-        double oldAverageRating = totalWeightedCount == 0 ? 0 : totalWeightedSum / totalWeightedCount;
-        double newAverageRating = totalWeightedCount == 0 ? 0 : (totalWeightedSum
-                + (lastInteraction != null ?
-                (lastInteraction.communication() + lastInteraction.respect() + lastInteraction.trust() +
-                        lastInteraction.empathy() + lastInteraction.time()) * ratingProps.getInteractionWeight() : 0))
-                / (totalWeightedCount + (lastInteraction != null ? ratingProps.getInteractionWeight() : 0));
+        double oldAverageRating = calculateOldAverageRating(totalWeightedCount, totalWeightedSum);
+        double newAverageRating = calculateNewAverageRating(totalWeightedCount, totalWeightedSum, lastInteractionWeightedSum);
 
         averageRatingDto.setOldAverageRating(oldAverageRating);
         averageRatingDto.setAverageRating(newAverageRating);
@@ -330,11 +329,63 @@ public class RatingCalculationService {
         return averageRatingDto;
     }
 
-    private double calculateUserAnswerSum(List<UserAnswerForCalculationDto> userAnswersForCalculation) {
-        return userAnswersForCalculation.stream().mapToDouble(dto -> dto.isPositive() ? 1 : -1).sum();
+    private double calculateWeightedLastInteractionSum(ExtendedContactInteractionDto lastInteraction) {
+        if (lastInteraction == null) {
+            return 0;
+        }
+
+        return (lastInteraction.communication() + lastInteraction.respect() + lastInteraction.trust() +
+                lastInteraction.empathy() + lastInteraction.time()) * ratingProps.getInteractionWeight();
     }
 
-    private double[] calculateRatingSums(List<ExtendedContactInteractionDto> contactInteractions) {
+
+    private double calculateTotalWeightedSum(
+            double interactionSums,
+            double userAnswersSums
+    ) {
+        return interactionSums + userAnswersSums;
+    }
+
+    private double calculateTotalWeightedCount(
+            int interactionCount,
+            int userAnswerCount
+    ) {
+        return interactionCount * ratingProps.getInteractionWeight() + userAnswerCount * ratingProps.getAnswerWeight();
+    }
+
+    private double calculateWeightedUserAnswerSum(List<UserAnswerForCalculationDto> userAnswersForCalculation) {
+        if (userAnswersForCalculation == null || userAnswersForCalculation.isEmpty()) {
+            return 0;
+        }
+        return userAnswersForCalculation.stream().mapToDouble(UserAnswerForCalculationDto::value).sum() *
+                ratingProps.getAnswerWeight();
+    }
+
+    private double calculateOldAverageRating(
+            double totalWeightedCount,
+            double totalWeightedSum
+    ) {
+        return totalWeightedCount == 0 ? 0 : totalWeightedSum / (totalWeightedCount * METRIC_COUNT);
+    }
+
+    private double calculateNewAverageRating(
+            double totalWeightedCount,
+            double totalWeightedSum,
+            double weightedLastInteractionSum
+    ) {
+        if (weightedLastInteractionSum == 0) {
+            return calculateOldAverageRating(totalWeightedCount, totalWeightedSum);
+        }
+        if (totalWeightedCount == 0) {
+            return 0;
+        }
+
+        double delimiter = (totalWeightedCount + ratingProps.getInteractionWeight()) * METRIC_COUNT;
+        return (totalWeightedSum + weightedLastInteractionSum) / delimiter;
+    }
+
+
+    private double calculateWeightedRatingSumByInteractions(List<ExtendedContactInteractionDto> contactInteractions) {
         double communicationRatingSum = 0;
         double respectRatingSum = 0;
         double trustRatingSum = 0;
@@ -349,7 +400,8 @@ public class RatingCalculationService {
             timeRatingSum += interaction.time();
         }
 
-        return new double[]{communicationRatingSum, respectRatingSum, trustRatingSum, empathyRatingSum, timeRatingSum};
+        return (communicationRatingSum + respectRatingSum + trustRatingSum + empathyRatingSum + timeRatingSum)
+                * ratingProps.getInteractionWeight();
     }
 
 
