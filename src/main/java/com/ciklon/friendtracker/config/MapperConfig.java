@@ -29,11 +29,6 @@ public class MapperConfig {
     }
 
     @Bean
-    public QuestionAnswerMapper questionAnswerMapper() {
-        return QuestionAnswerMapper.INSTANCE;
-    }
-
-    @Bean
     public QuestionMapper questionMapper() {
         return QuestionMapper.INSTANCE;
     }

@@ -2,7 +2,6 @@ create table forms
 (
     id uuid primary key,
     user_id uuid not null,
-    mood varchar(100) not null default 'NEUTRAL',
     interaction_count int not null default 0,
     date timestamp not null,
     created_at timestamp default current_timestamp not null,

@@ -11,9 +11,6 @@ public record QuestionCreationDto(
         String question,
 
         @Schema(description = "Тип поля, на который будут начислен рейтинг", example = "COMMUNICATION")
-        FieldType fieldType,
-
-        @Schema(description = "Варианты ответов на вопрос")
-        List<QuestionAnswerCreationDto> answers
+        FieldType fieldType
 ) {
 }

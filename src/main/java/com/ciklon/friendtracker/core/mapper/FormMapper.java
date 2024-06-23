@@ -16,7 +16,6 @@ public interface FormMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "contactInteractions", ignore = true)
-    @Mapping(target = "mood", source = "formCreationDto.mood")
     @Mapping(target = "user", source = "user")
     @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
@@ -29,7 +28,6 @@ public interface FormMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "interactionCount", ignore = true)
-    @Mapping(target = "mood", source = "updateFormDto.mood")
     @Mapping(target = "date", source = "updateFormDto.date")
     @Mapping(target = "updatedAt", expression = "java(java.time.LocalDateTime.now())")
     @Mapping(target = "createdAt", ignore = true)

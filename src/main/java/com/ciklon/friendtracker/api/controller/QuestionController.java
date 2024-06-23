@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -98,37 +97,6 @@ public class QuestionController {
             @RequestBody UpdateQuestionDto updateQuestionDto
     ) {
         return questionService.editQuestion(questionId, updateQuestionDto);
-    }
-
-    @PutMapping(ApiPaths.QUESTION_ANSWER_BY_ID)
-    @Operation(summary = "Редактировать ответ на вопрос", description = "Редактирование ответа на вопрос по ID.")
-    public QuestionAnswerDto editAnswer(
-            @PathVariable("id") UUID answerId,
-            @RequestBody UpdateAnswerDto updateAnswerDto
-    ) {
-        return questionService.editAnswer(answerId, updateAnswerDto);
-    }
-
-    @PutMapping(ApiPaths.QUESTION_ANSWERS)
-    @Operation(summary = "Обновить список ответов для вопроса (НЕ удаляет старые)", description = """
-            ДОбавление списка ответов для конкретного вопроса.""")
-    public List<QuestionAnswerDto> updateAnswerListForQuestion(
-            @PathVariable("id") UUID questionId,
-            @RequestBody List<UpdateAnswerDto> updateAnswerDtos
-    ) {
-        return questionService.updateAnswerListForQuestion(questionId, updateAnswerDtos);
-    }
-
-    @DeleteMapping(ApiPaths.QUESTION_ANSWER_BY_ID)
-    @Operation(summary = "Удалить ответ на вопрос", description = "Удаление ответа на вопрос по ID.")
-    public QuestionAnswerDto deleteAnswer(@PathVariable("id") UUID answerId) {
-        return questionService.deleteAnswer(answerId);
-    }
-
-    @DeleteMapping(ApiPaths.ALL_QUESTION_ANSWERS_BY_QUESTION_ID)
-    @Operation(summary = "Удалить все ответы для вопроса", description = "Удаление всех ответов на вопрос по ID.")
-    public List<QuestionAnswerDto> deleteAllAnswersByQuestionId(@PathVariable("id") UUID questionId) {
-        return questionService.deleteAllAnswersByQuestionId(questionId);
     }
 }
 

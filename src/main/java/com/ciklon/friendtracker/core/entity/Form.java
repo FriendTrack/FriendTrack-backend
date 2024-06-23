@@ -1,6 +1,5 @@
 package com.ciklon.friendtracker.core.entity;
 
-import com.ciklon.friendtracker.api.dto.enums.MoodType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,10 +21,6 @@ public class Form {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
-
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private MoodType mood = MoodType.NEUTRAL;
 
     @Column(columnDefinition = "TIMESTAMP", nullable = false)
     private LocalDate date;

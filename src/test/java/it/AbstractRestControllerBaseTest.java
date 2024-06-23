@@ -19,9 +19,10 @@ public abstract class AbstractRestControllerBaseTest {
         POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>("postgres:latest")
                 .withUsername("postgres")
                 .withPassword("postgres")
-                .withDatabaseName("friend_tracker_db_test");
+                .withDatabaseName("friend_tracker_db_test")
+                .withExposedPorts(5432);
         REDIS_CONTAINER = new RedisContainer(DockerImageName.parse("redis:latest"))
-                .withExposedPorts(6379);
+                .withExposedPorts(6380);
 
         POSTGRE_SQL_CONTAINER.start();
         REDIS_CONTAINER.start();

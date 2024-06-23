@@ -4,7 +4,6 @@ package utils;
 import com.ciklon.friendtracker.api.dto.contact.ContactCreationDto;
 import com.ciklon.friendtracker.api.dto.contact.UpdateContactDto;
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
-import com.ciklon.friendtracker.api.dto.enums.MoodType;
 import com.ciklon.friendtracker.api.dto.form.ContactInteractionCreationDto;
 import com.ciklon.friendtracker.api.dto.form.FormCreationDto;
 import com.ciklon.friendtracker.api.dto.question.QuestionAnswerCreationDto;
@@ -96,7 +95,6 @@ public class DataUtils {
 
     public static FormCreationDto getFormCreationDto(List<UUID> contactIds) {
         return new FormCreationDto(
-                MoodType.HAPPY,
                 LocalDate.now(),
                 2,
                 List.of(
@@ -111,7 +109,6 @@ public class DataUtils {
     public static Form getFormEntity(User user, Integer contactInteractionCount) {
         return new Form(
                 UUID.randomUUID(),
-                MoodType.HAPPY,
                 LocalDate.now(),
                 user,
                 contactInteractionCount,
@@ -124,11 +121,7 @@ public class DataUtils {
     public static QuestionCreationDto getQuestionCreationDto() {
         return new QuestionCreationDto(
                 "Question text",
-                FieldType.COMMUNICATION,
-                List.of(
-                        new QuestionAnswerCreationDto("Answer 1", true),
-                        new QuestionAnswerCreationDto("Answer 2", false)
-                )
+                FieldType.COMMUNICATION
         );
     }
 
@@ -136,19 +129,14 @@ public class DataUtils {
     public static QuestionCreationDto getQuestionCreationDtoWithEmptyAnswers() {
         return new QuestionCreationDto(
                 "Question text",
-                FieldType.COMMUNICATION,
-                Collections.emptyList()
+                FieldType.COMMUNICATION
         );
     }
 
     public static QuestionCreationDto getQuestionCreationDtoWithEmptyQuestion() {
         return new QuestionCreationDto(
                 null,
-                FieldType.COMMUNICATION,
-                List.of(
-                        new QuestionAnswerCreationDto("Answer 1", true),
-                        new QuestionAnswerCreationDto("Answer 2", false)
-                )
+                FieldType.COMMUNICATION
         );
     }
 
@@ -156,33 +144,25 @@ public class DataUtils {
         return new Question(
                 UUID.randomUUID(),
                 "Question text",
-                FieldType.COMMUNICATION,
-                Collections.emptyList()
-        );
-    }
-
-    public static List<QuestionAnswer> getQuestionAnswerEntities(Question question) {
-        return List.of(
-                new QuestionAnswer(UUID.randomUUID(), question, "Answer 1", true),
-                new QuestionAnswer(UUID.randomUUID(), question, "Answer 2", false)
+                FieldType.COMMUNICATION
         );
     }
 
     public static UserAnswerCreationDto getUserAnswerCreationDto(
-            UUID questionId, UUID answerId, UUID contactId
+            UUID questionId, UUID contactId, int value
     ) {
         return new UserAnswerCreationDto(
                 questionId,
                 contactId,
-                answerId
+                value
         );
     }
 
 
-    public static UserAnswer getUserAnswerEntity(Contact contact, Question question, QuestionAnswer questionAnswer, User user) {
+    public static UserAnswer getUserAnswerEntity(Contact contact, Question question, User user, int value) {
         return new UserAnswer(
                 question,
-                questionAnswer,
+                value,
                 contact,
                 user
         );
@@ -192,7 +172,6 @@ public class DataUtils {
         return List.of(
                 new Form(
                         UUID.randomUUID(),
-                        MoodType.HAPPY,
                         LocalDate.now(),
                         user,
                         2,
@@ -200,7 +179,7 @@ public class DataUtils {
                         LocalDateTime.now(),
                         Collections.emptyList()
                 ),
-                new Form(UUID.randomUUID(), MoodType.NEUTRAL, LocalDate.now(), user, 2, LocalDateTime.now(),
+                new Form(UUID.randomUUID(), LocalDate.now(), user, 2, LocalDateTime.now(),
                          LocalDateTime.now(), Collections.emptyList()
                 )
         );
@@ -220,51 +199,21 @@ public class DataUtils {
 
     public static List<Question> getQuestionList() {
         return List.of(
-                new Question(UUID.randomUUID(), "Question 1", FieldType.COMMUNICATION, Collections.emptyList()),
-                new Question(UUID.randomUUID(), "Question 2", FieldType.EMPATHY, Collections.emptyList()),
-                new Question(UUID.randomUUID(), "Question 3", FieldType.TRUST, Collections.emptyList())
+                new Question(UUID.randomUUID(), "Question 1", FieldType.COMMUNICATION),
+                new Question(UUID.randomUUID(), "Question 2", FieldType.EMPATHY),
+                new Question(UUID.randomUUID(), "Question 3", FieldType.TRUST)
         );
     }
 
-    public static List<QuestionAnswer> getFirstQuestionAnswerList(Question question) {
-        return List.of(
-                new QuestionAnswer("Answer 1",question, true),
-                new QuestionAnswer("Answer 2",question, false),
-                new QuestionAnswer("Answer 3",question, false),
-                new QuestionAnswer("Answer 4",question, false)
-        );
 
-    }
-
-    public static List<QuestionAnswer> getSecondQuestionAnswerList(Question question) {
+    public static List<UserAnswer> getUserAnswerList(User user, List<Question> questions, List<Contact> contacts) {
         return List.of(
-                new QuestionAnswer("Answer 1",question, false),
-                new QuestionAnswer("Answer 2",question, true),
-                new QuestionAnswer("Answer 3",question, false),
-                new QuestionAnswer("Answer 4",question, false)
-        );
-    }
-
-    public static List<QuestionAnswer> getThirdQuestionAnswerList(Question question) {
-        return List.of(
-                new QuestionAnswer("Answer 1",question, false),
-                new QuestionAnswer("Answer 2",question, false),
-                new QuestionAnswer("Answer 3",question, true),
-                new QuestionAnswer("Answer 4",question, false),
-                new QuestionAnswer("Answer 5",question, false),
-                new QuestionAnswer("Answer 6",question, false)
-        );
-    }
-
-    public static List<UserAnswer> getUserAnswerList(User user, List<Question> questions,
-                                                  List<QuestionAnswer> questionAnswers, List<Contact> contacts) {
-        return List.of(
-                new UserAnswer(questions.get(0), questionAnswers.get(0), contacts.get(0), user),
-                new UserAnswer(questions.get(0), questionAnswers.get(1), contacts.get(1), user),
-                new UserAnswer(questions.get(1), questionAnswers.get(2), contacts.get(0), user),
-                new UserAnswer(questions.get(1), questionAnswers.get(3), contacts.get(1), user),
-                new UserAnswer(questions.get(2), questionAnswers.get(4), contacts.get(0), user),
-                new UserAnswer(questions.get(2), questionAnswers.get(5), contacts.get(1), user)
+                new UserAnswer(questions.get(0), 3, contacts.get(0), user),
+                new UserAnswer(questions.get(0), 1, contacts.get(1), user),
+                new UserAnswer(questions.get(1), 5, contacts.get(0), user),
+                new UserAnswer(questions.get(1), 3, contacts.get(1), user),
+                new UserAnswer(questions.get(2), 1, contacts.get(0), user),
+                new UserAnswer(questions.get(2), 3, contacts.get(1), user)
         );
     }
 }
