@@ -5,6 +5,7 @@ import com.ciklon.friendtracker.core.entity.Contact;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -17,4 +18,12 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
     boolean existsByNameAndUserId(String name, UUID userId);
 
     boolean existsByNameInAndUserId(List<String> list, UUID creatorId);
+
+    @Query("""
+            select c.id
+            from Contact c
+            where c.user.id = :userId
+    """
+    )
+    List<UUID> findContactIdsByUserId(UUID userId);
 }

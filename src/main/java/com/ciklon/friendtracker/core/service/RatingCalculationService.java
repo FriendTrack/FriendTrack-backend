@@ -11,12 +11,14 @@ import com.ciklon.friendtracker.core.constant.RatingProps;
 import com.ciklon.friendtracker.core.mapper.RatingMapper;
 import com.ciklon.friendtracker.core.repository.ContactInteractionRepository;
 import com.ciklon.friendtracker.core.repository.UserAnswerRepository;
+import com.ciklon.friendtracker.core.service.integration.ContactIntegrationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,6 +33,7 @@ public class RatingCalculationService {
     private final UserAnswerRepository userAnswerRepository;
     private final RatingMapper ratingMapper;
     private final RatingProps ratingProps;
+    private final ContactIntegrationService contactIntegrationService;
 
     public List<RatingDto> calculateRatings(
             UUID userId,
@@ -71,9 +74,21 @@ public class RatingCalculationService {
             int size
     ) {
         Pageable pageable = PageRequest.of(page - 1, size);
-        List<AverageRatingDto> averageRatings = calculateAverageRatings(userId, pageable);
+        List<AverageRatingDto> averageRatings = new ArrayList<>(calculateAverageRatings(userId, pageable));
 
-        return new AverageRatingPaginationResponse(size, page, averageRatings.size() / size + 1, averageRatings);
+        List<UUID> contactIds = contactIntegrationService.getContactsByUserId(userId);
+        List<AverageRatingDto> finalAverageRatings = averageRatings;
+        List<AverageRatingDto> blankRatings = contactIds.stream()
+                .filter(contactId -> finalAverageRatings.stream().noneMatch(rating -> rating.getContactId().equals(contactId)))
+                .map(AverageRatingDto::new)
+                .toList();
+        averageRatings.addAll(blankRatings);
+        int totalPage = averageRatings.size() / size + 1;
+        averageRatings = averageRatings.stream()
+                .skip((long) size * (page - 1))
+                .limit(size)
+                .toList();
+        return new AverageRatingPaginationResponse(size, page, totalPage, averageRatings);
     }
 
     private List<RatingDto> calculateRatingsByForms(
