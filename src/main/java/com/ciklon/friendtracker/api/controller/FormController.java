@@ -94,4 +94,21 @@ public class FormController {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return formService.getFormById(formId, userId);
     }
+
+    @GetMapping(ApiPaths.FORM)
+    @Operation(summary = "Получение всех форм пользователя", description = "Получает все формы пользователя.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Формы успешно получены"),
+            @ApiResponse(responseCode = "401", description = "Пользователь не авторизован"),
+            @ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    public List<FormDto> getForms(
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        page = page < 1 ? 1 : page;
+        size = size < 1 ? 10 : size;
+        return formService.getForms(userId, page, size);
+    }
 }

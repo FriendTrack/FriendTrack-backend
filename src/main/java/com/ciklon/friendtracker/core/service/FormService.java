@@ -15,6 +15,8 @@ import com.ciklon.friendtracker.core.repository.FormRepository;
 import com.ciklon.friendtracker.core.service.integration.ContactIntegrationService;
 import com.ciklon.friendtracker.core.service.integration.UserIntegrationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -127,6 +129,20 @@ public class FormService {
                             form,
                             contactInteractionCreationDto
                     );
+                })
+                .toList();
+    }
+
+    public List<FormDto> getForms(UUID userId, int page, int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+
+        return formRepository.findAllByUserId(userId, pageable)
+                .stream()
+                .map(form -> {
+                    List<ContactInteractionDto> contactInteractionDtoList = form.getContactInteractions().stream()
+                            .map(contactInteractionMapper::map)
+                            .toList();
+                    return formMapper.map(form, contactInteractionDtoList, contactInteractionDtoList.size());
                 })
                 .toList();
     }
