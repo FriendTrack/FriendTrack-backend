@@ -3,6 +3,7 @@ package com.ciklon.friendtracker.api.dto.rating;
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record UserAnswerForCalculationDto(
@@ -17,6 +18,9 @@ public record UserAnswerForCalculationDto(
         FieldType fieldType,
 
         @Schema(description = "Выбранное пользователем значение в качестве ответа",  example = "5")
-        int value
+        int value,
+
+        @Schema(description = "Дата создания записи", example = "2021-12-31")
+        LocalDate createdAt
 ) {
 }

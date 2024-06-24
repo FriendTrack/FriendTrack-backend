@@ -2,8 +2,10 @@ package com.ciklon.friendtracker.api.controller;
 
 import com.ciklon.friendtracker.api.constant.ApiPaths;
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
+import com.ciklon.friendtracker.api.dto.enums.PeriodType;
 import com.ciklon.friendtracker.api.dto.enums.RatingCalculationType;
 import com.ciklon.friendtracker.api.dto.rating.AverageRatingPaginationResponse;
+import com.ciklon.friendtracker.api.dto.rating.CalculatedRatingDto;
 import com.ciklon.friendtracker.api.dto.rating.RatingDto;
 import com.ciklon.friendtracker.api.dto.rating.RatingPaginationResponse;
 import com.ciklon.friendtracker.core.service.RatingCalculationService;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -97,7 +100,6 @@ public class RatingController {
         return ratingService.getRatingByContactId(userId, contactId, fromDate, toDate, fieldType, calculationType);
     }
 
-    // get average rating list
     @GetMapping(ApiPaths.AVERAGE_RATING)
     @Operation(summary = "Получение среднего рейтинга всех контактов", description = "Получение среднего рейтинга контакта.")
     @ApiResponses(value = {
@@ -113,4 +115,22 @@ public class RatingController {
         size = size < 1 ? 10 : size;
         return ratingCalculationService.getAverageContactsRating(userId, page, size);
     }
+
+    @GetMapping(ApiPaths.RATING_GRAPH_BY_CONTACT_ID)
+    @Operation(summary = "Получение графика рейтинга контакта", description = "Получение графика рейтинга контакта.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Успешное получение графика рейтинга"),
+            @ApiResponse(responseCode = "400", description = "Некорректные данные запроса"),
+            @ApiResponse(responseCode = "404", description = "Контакт не найден"),
+            @ApiResponse(responseCode = "500", description = "Ошибка сервера")
+    })
+    public List<CalculatedRatingDto> getRatingGraphByContactId(
+            @PathVariable("id") UUID contactId,
+            @Schema(description = "Тип периода", example = "WEEK", allowableValues = {"WEEK", "MONTH", "HALF_YEAR"})
+            @RequestParam(value = "periodType", required = false, defaultValue = "WEEK") PeriodType periodType
+    ) {
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return ratingService.getCalculatedRatings(userId, contactId, periodType);
+    }
+
 }

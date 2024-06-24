@@ -19,6 +19,7 @@ public class ApiPaths {
     public static final String RATING = "/api/v1/rating";
     public static final String RATING_BY_CONTACT_ID = "/api/v1/rating/contact/{id}";
     public static final String AVERAGE_RATING = "/api/v1/rating/average";
+    public static final String RATING_GRAPH_BY_CONTACT_ID = "/api/v1/rating/graph/contact/{id}";
 
     public static final String QUESTION = "/api/v1/question";
     public static final String QUESTION_BY_ID = "/api/v1/question/{id}";
