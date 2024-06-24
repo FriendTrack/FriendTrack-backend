@@ -24,4 +24,8 @@ public class ContactIntegrationService {
         return contactRepository.findById(contactId).
                 orElseThrow(() -> new CustomException(ExceptionType.BAD_REQUEST, "Contact not found"));
     }
+
+    public List<UUID> getContactsByUserId(UUID userId) {
+        return contactRepository.findContactIdsByUserId(userId);
+    }
 }
