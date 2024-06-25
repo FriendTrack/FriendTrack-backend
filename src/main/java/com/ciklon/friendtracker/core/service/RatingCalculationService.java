@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -433,7 +434,7 @@ public class RatingCalculationService {
 
         for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = getNextDate(date, periodType)) {
             LocalDate finalDate = date;
-            LocalDate finalDate1 = date;
+            LocalDateTime finalDate1 = date.atStartOfDay();
             List<ExtendedContactInteractionDto> tempContactInteractions = contactInteractions.stream()
                     .filter(interaction -> interaction.date().isBefore(finalDate))
                     .toList();
