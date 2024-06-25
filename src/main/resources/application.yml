@@ -25,7 +25,6 @@ spring:
       port:
         ${REDIS_PORT:6379}
 
-
 jwt:
   access-secret: ${JWT_ACCESS_SECRET:eyJhbGciOiJIUzI1NiJ9eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcxNzUwNzI2NCwiaWF0IjoxNzE3NTA3MjY0fQ-fCLZlDBNKkJ3-M-a9GBOhGPFH9PCLuzgQKA6Ax73aA}
   access-expiration-time: ${JWT_ACCESS_EXPIRATION_TIME:604800000}
