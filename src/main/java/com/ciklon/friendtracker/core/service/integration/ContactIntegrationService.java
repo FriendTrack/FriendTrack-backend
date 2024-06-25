@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class ContactIntegrationService {
         return contactRepository.findContactIdsByUserId(userId);
     }
 
-    public List<UUID> getContactsByUserIdAndToDate(UUID userId, LocalDate toDate) {
+    public List<UUID> getContactsByUserIdAndToDate(UUID userId, LocalDateTime toDate) {
         return contactRepository.findContactIdsByUserIdAndToDate(userId, toDate);
     }
 
