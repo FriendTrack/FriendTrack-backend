@@ -251,7 +251,9 @@ public class RatingCalculationService {
 
     private RatingDto getContactRatingByQuestions(UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate) {
         List<UserAnswerForCalculationDto> userAnswersForCalculation =
-                userAnswerRepository.findAllByUserIdAndContactIdAndFieldTypeAndDateBetween(userId, contactId, fieldType, fromDate, toDate);
+                userAnswerRepository.findAllByUserIdAndContactIdAndFieldTypeAndDateBetween(userId, contactId,
+                                                                                           fieldType, fromDate.atStartOfDay(),
+                                                                                           toDate.atStartOfDay());
 
         if (userAnswersForCalculation == null || userAnswersForCalculation.isEmpty()) {
             return new RatingDto(contactId, RatingCalculationType.QUESTIONS, 0, 0, 0, 0, 0, 0, 0);

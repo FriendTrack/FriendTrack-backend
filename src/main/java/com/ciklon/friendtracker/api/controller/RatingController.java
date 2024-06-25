@@ -130,7 +130,7 @@ public class RatingController {
             @RequestParam(value = "periodType", required = false, defaultValue = "WEEK") PeriodType periodType
     ) {
         UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return ratingService.getCalculatedRatings(userId, contactId, periodType);
+        return ratingService.getCalculatedRatingsGraph(userId, contactId, periodType);
     }
 
 }

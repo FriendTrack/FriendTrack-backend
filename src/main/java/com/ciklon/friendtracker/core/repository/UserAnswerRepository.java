@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -65,7 +65,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
         and ua.createdAt between :fromDate and :toDate
     """)
     List<UserAnswerForCalculationDto> findAllByUserIdAndContactIdAndFieldTypeAndDateBetween(
-            UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate);
+            UUID userId, UUID contactId, FieldType fieldType, LocalDateTime fromDate, LocalDateTime toDate);
 
     @Query("""
         select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(

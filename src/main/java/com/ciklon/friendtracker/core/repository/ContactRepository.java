@@ -37,4 +37,7 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
     """
     )
     List<UUID> findContactIdsByUserIdAndToDate(UUID userId, LocalDate toDate);
+
+
+    boolean existsContactByUserIdAndId(UUID userId, UUID id);
 }

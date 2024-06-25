@@ -33,4 +33,10 @@ public class ContactIntegrationService {
     public List<UUID> getContactsByUserIdAndToDate(UUID userId, LocalDate toDate) {
         return contactRepository.findContactIdsByUserIdAndToDate(userId, toDate);
     }
+
+    public void existsContact(UUID userId, UUID contactId) {
+        if (!contactRepository.existsContactByUserIdAndId(userId, contactId)) {
+            throw new CustomException(ExceptionType.BAD_REQUEST, "Contact not found");
+        }
+    }
 }

@@ -43,6 +43,12 @@ public class CalculatedRatingDto {
         @Schema(description = "Дата последнего взаимодействия", example = "2021-12-31")
         LocalDate lastInteractionDate;
 
+        @Schema(description = "Заголовок рекомендация взаимодействий", example = "Больше времени проводите вместе")
+        String title;
+
+        @Schema(description = "Описание рекомендации", example = "* тут какая-то рекомендация *")
+        String description;
+
         public CalculatedRatingDto(UUID contactId, LocalDate date) {
             this.contactId = contactId;
             this.interactionCount = 0;
