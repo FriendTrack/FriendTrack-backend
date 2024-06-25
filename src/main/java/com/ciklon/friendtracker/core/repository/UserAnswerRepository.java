@@ -24,7 +24,9 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.value
+            ua.value,
+            ua.createdAt
+
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -38,7 +40,8 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.value
+            ua.value,
+            ua.createdAt
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -53,7 +56,8 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.value
+            ua.value,
+            ua.createdAt
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -66,10 +70,26 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.id,
             ua.contact.id,
             ua.question.fieldType,
-            ua.value
+            ua.value,
+            ua.createdAt
         )
         from UserAnswer ua
         where ua.user.id = :userId
     """)
     List<UserAnswerForCalculationDto> findAllByUserId(UUID userId);
+
+    @Query("""
+        select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
+            ua.id,
+            ua.contact.id,
+            ua.question.fieldType,
+            ua.value,
+            ua.createdAt
+        )
+        from UserAnswer ua
+        where ua.contact.id = :contactId
+        order by ua.createdAt desc
+        limit 1
+    """)
+    UserAnswerForCalculationDto findLastAnswerByContactId(UUID contactId);
 }

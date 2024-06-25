@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -97,6 +98,14 @@ public class QuestionController {
             @RequestBody UpdateQuestionDto updateQuestionDto
     ) {
         return questionService.editQuestion(questionId, updateQuestionDto);
+    }
+
+    @GetMapping(ApiPaths.QUESTIONS_BY_CONTACT_ID)
+    @Operation(summary = "Получение вопросов по контакту", description = "Получение вопросов для контакта.")
+    public List<QuestionDto> getQuestionsByContactId(
+            @PathVariable("id") UUID contactId
+    ) {
+        return questionService.getQuestionsByContactId(contactId);
     }
 }
 
