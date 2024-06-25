@@ -35,7 +35,7 @@ public class RatingService {
         dataValidator.validateDates(fromDate, toDate);
         List<RatingDto> ratings = new ArrayList<>(ratingCalculationService.calculateRatings(userId, fromDate, toDate, fieldType, ratingCalculationType, page, size));
 
-        List<UUID> contactIds = contactIntegrationService.getContactsByUserId(userId);
+        List<UUID> contactIds = contactIntegrationService.getContactsByUserIdAndToDate(userId, toDate);
         List<RatingDto> finalRatings = ratings;
         List<RatingDto> emptyRatings = contactIds.stream()
                 .filter(contactId -> finalRatings.stream().noneMatch(rating -> rating.getContactId().equals(contactId)))

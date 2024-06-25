@@ -7,6 +7,7 @@ import com.ciklon.friendtracker.core.repository.ContactRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,5 +28,9 @@ public class ContactIntegrationService {
 
     public List<UUID> getContactsByUserId(UUID userId) {
         return contactRepository.findContactIdsByUserId(userId);
+    }
+
+    public List<UUID> getContactsByUserIdAndToDate(UUID userId, LocalDate toDate) {
+        return contactRepository.findContactIdsByUserIdAndToDate(userId, toDate);
     }
 }

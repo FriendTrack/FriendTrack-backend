@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,4 +27,14 @@ public interface ContactRepository extends JpaRepository<Contact, UUID> {
     """
     )
     List<UUID> findContactIdsByUserId(UUID userId);
+
+
+    @Query("""
+            select c.id
+            from Contact c
+            where c.user.id = :userId
+            and c.createdAt <= :toDate
+    """
+    )
+    List<UUID> findContactIdsByUserIdAndToDate(UUID userId, LocalDate toDate);
 }
