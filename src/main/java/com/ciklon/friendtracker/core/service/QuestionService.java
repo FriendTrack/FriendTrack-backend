@@ -1,12 +1,19 @@
 package com.ciklon.friendtracker.core.service;
 
 import com.ciklon.friendtracker.api.dto.PaginationResponse;
-import com.ciklon.friendtracker.api.dto.question.*;
+import com.ciklon.friendtracker.api.dto.enums.FieldType;
+import com.ciklon.friendtracker.api.dto.question.QuestionCreationDto;
+import com.ciklon.friendtracker.api.dto.question.QuestionDto;
+import com.ciklon.friendtracker.api.dto.question.UpdateQuestionDto;
 import com.ciklon.friendtracker.api.dto.rating.UserAnswerCreationDto;
 import com.ciklon.friendtracker.api.dto.rating.UserAnswerDto;
+import com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto;
 import com.ciklon.friendtracker.common.exception.CustomException;
 import com.ciklon.friendtracker.common.exception.ExceptionType;
-import com.ciklon.friendtracker.core.entity.*;
+import com.ciklon.friendtracker.core.entity.Contact;
+import com.ciklon.friendtracker.core.entity.Question;
+import com.ciklon.friendtracker.core.entity.User;
+import com.ciklon.friendtracker.core.entity.UserAnswer;
 import com.ciklon.friendtracker.core.mapper.QuestionMapper;
 import com.ciklon.friendtracker.core.mapper.UserAnswerMapper;
 import com.ciklon.friendtracker.core.repository.QuestionRepository;
@@ -18,6 +25,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -139,5 +149,25 @@ public class QuestionService {
         }
         userAnswerRepository.delete(userAnswer);
         return userAnswerMapper.map(userAnswer);
+    }
+
+    public List<QuestionDto> getQuestionsByContactId(UUID contactId) {
+        List<QuestionDto> questions = new java.util.ArrayList<>(questionRepository.getByDifferentFieldTypes().stream()
+                                                                        .map(questionMapper::map)
+                                                                        .toList());
+
+        UserAnswerForCalculationDto lastAnswer = userAnswerRepository.findLastAnswerByContactId(contactId);
+
+        QuestionDto questionWithSameFieldType = questions.stream()
+                .filter(questionDto -> questionDto.fieldType().equals(lastAnswer.fieldType()))
+                .findFirst()
+                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Question not found"));
+
+        questions.remove(questionWithSameFieldType);
+        // отсортируй по названию fieldType
+        questions.sort(Comparator.comparing(QuestionDto::fieldType));
+        questions.add(questionWithSameFieldType);
+
+        return questions;
     }
 }

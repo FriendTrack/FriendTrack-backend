@@ -1,5 +1,7 @@
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
 create table questions (
-    id uuid primary key,
+    id uuid primary key default uuid_generate_v4(),
     question text not null,
     field_type text check (field_type in ('EMPATHY', 'TRUST', 'COMMUNICATION', 'RESPECT', 'TIME')) not null
 );

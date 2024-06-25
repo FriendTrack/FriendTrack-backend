@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -32,7 +33,7 @@ public class UserAnswer {
     private int value;
 
     @Column(columnDefinition = "TIMESTAMP")
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
 
     public UserAnswer(Question question, int value, Contact contact, User user) {
@@ -40,11 +41,11 @@ public class UserAnswer {
         this.value = value;
         this.contact = contact;
         this.user = user;
-        this.createdAt = LocalDate.now();
+        this.createdAt = LocalDateTime.now();
     }
 
     @PrePersist
     public void prePersist() {
-        createdAt = LocalDate.now();
+        createdAt = LocalDateTime.now();
     }
 }

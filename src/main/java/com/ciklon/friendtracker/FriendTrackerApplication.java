@@ -4,7 +4,9 @@ import com.ciklon.friendtracker.common.exception.handler.EnableApiExceptionHandl
 import com.ciklon.friendtracker.common.security.annotation.EnableSpringSecurity;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+@EnableJpaRepositories
 @EnableSpringSecurity
 @EnableApiExceptionHandler
 @SpringBootApplication
