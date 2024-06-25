@@ -105,7 +105,8 @@ public class QuestionController {
     public List<QuestionDto> getQuestionsByContactId(
             @PathVariable("id") UUID contactId
     ) {
-        return questionService.getQuestionsByContactId(contactId);
+        UUID userId = (UUID) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return questionService.getQuestionsByContactId(userId, contactId);
     }
 }
 

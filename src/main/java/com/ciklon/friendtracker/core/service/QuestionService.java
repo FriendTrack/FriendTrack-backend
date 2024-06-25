@@ -1,7 +1,6 @@
 package com.ciklon.friendtracker.core.service;
 
 import com.ciklon.friendtracker.api.dto.PaginationResponse;
-import com.ciklon.friendtracker.api.dto.enums.FieldType;
 import com.ciklon.friendtracker.api.dto.question.QuestionCreationDto;
 import com.ciklon.friendtracker.api.dto.question.QuestionDto;
 import com.ciklon.friendtracker.api.dto.question.UpdateQuestionDto;
@@ -25,7 +24,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
@@ -151,22 +149,24 @@ public class QuestionService {
         return userAnswerMapper.map(userAnswer);
     }
 
-    public List<QuestionDto> getQuestionsByContactId(UUID contactId) {
+    public List<QuestionDto> getQuestionsByContactId(UUID userId, UUID contactId) {
+        contactIntegrationService.existsContact(userId, contactId);
         List<QuestionDto> questions = new java.util.ArrayList<>(questionRepository.getByDifferentFieldTypes().stream()
                                                                         .map(questionMapper::map)
                                                                         .toList());
 
         UserAnswerForCalculationDto lastAnswer = userAnswerRepository.findLastAnswerByContactId(contactId);
+        if (lastAnswer != null) {
+            QuestionDto questionWithSameFieldType = questions.stream()
+                    .filter(questionDto -> questionDto.fieldType().equals(lastAnswer.fieldType()))
+                    .findFirst()
+                    .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Question not found"));
 
-        QuestionDto questionWithSameFieldType = questions.stream()
-                .filter(questionDto -> questionDto.fieldType().equals(lastAnswer.fieldType()))
-                .findFirst()
-                .orElseThrow(() -> new CustomException(ExceptionType.NOT_FOUND, "Question not found"));
+            questions.remove(questionWithSameFieldType);
+            questions.sort(Comparator.comparing(QuestionDto::fieldType));
+            questions.add(questionWithSameFieldType);
+        }
 
-        questions.remove(questionWithSameFieldType);
-        // отсортируй по названию fieldType
-        questions.sort(Comparator.comparing(QuestionDto::fieldType));
-        questions.add(questionWithSameFieldType);
 
         return questions;
     }
