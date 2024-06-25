@@ -26,7 +26,21 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
             ua.question.fieldType,
             ua.value,
             ua.createdAt
+        )
+        from UserAnswer ua
+        where ua.user.id = :userId
+        and ua.contact.id = :contactId
+        order by ua.createdAt asc
+    """)
+    List<UserAnswerForCalculationDto> findAllByUserIdAndContactId(UUID userId, UUID contactId);
 
+    @Query("""
+        select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
+            ua.id,
+            ua.contact.id,
+            ua.question.fieldType,
+            ua.value,
+            ua.createdAt
         )
         from UserAnswer ua
         where ua.user.id = :userId
@@ -47,9 +61,10 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
         where ua.user.id = :userId
         and ua.contact.id = :contactId
         and (ua.question.fieldType = :fieldType or :fieldType = 'ALL')
+        and ua.createdAt between :fromDate and :toDate
     """)
-    List<UserAnswerForCalculationDto> findAllByUserIdAndContactIdAndFieldType(
-            UUID userId, UUID contactId, FieldType fieldType);
+    List<UserAnswerForCalculationDto> findAllByUserIdAndContactIdAndFieldTypeAndDateBetween(
+            UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate);
 
     @Query("""
         select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(

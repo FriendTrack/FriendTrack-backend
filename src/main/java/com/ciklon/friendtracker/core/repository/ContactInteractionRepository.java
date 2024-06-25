@@ -75,6 +75,26 @@ public interface ContactInteractionRepository extends JpaRepository<ContactInter
             order by f.date desc
     """
     )
-    List<ContactInteractionDto> findAllByUserIdAndContactIdAndDateBetween(UUID userId, UUID contactId,
-                                                                          LocalDate fromDate, LocalDate toDate);
+    List<ContactInteractionDto> findAllByUserIdAndContactId(UUID userId, UUID contactId,
+                                                            LocalDate fromDate, LocalDate toDate);
+
+    @Query("""
+            select new com.ciklon.friendtracker.api.dto.form.ExtendedContactInteractionDto(
+                ci.id.formId,
+                ci.contact.id,
+                ci.respect,
+                ci.time,
+                ci.trust,
+                ci.empathy,
+                ci.communication,
+                f.date
+            )
+            from ContactInteraction ci
+            join ci.form f on ci.id.formId = f.id
+            where f.user.id = :userId
+            and ci.contact.id = :contactId
+            order by f.date asc
+    """
+    )
+    List<ExtendedContactInteractionDto> findAllByUserIdAndContactId(UUID userId, UUID contactId);
 }

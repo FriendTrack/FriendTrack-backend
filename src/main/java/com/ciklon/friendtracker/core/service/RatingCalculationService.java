@@ -1,6 +1,7 @@
 package com.ciklon.friendtracker.core.service;
 
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
+import com.ciklon.friendtracker.api.dto.enums.PeriodType;
 import com.ciklon.friendtracker.api.dto.enums.RatingCalculationType;
 import com.ciklon.friendtracker.api.dto.form.ContactInteractionDto;
 import com.ciklon.friendtracker.api.dto.form.ExtendedContactInteractionDto;
@@ -63,7 +64,7 @@ public class RatingCalculationService {
     ) {
         return switch (ratingCalculationType) {
             case FORMS -> getContactRatingByForms(userId, contactId, fromDate, toDate, fieldType);
-            case QUESTIONS -> getContactRatingByQuestions(userId, contactId, fieldType);
+            case QUESTIONS -> getContactRatingByQuestions(userId, contactId, fieldType, fromDate, toDate);
             case ALL -> getContactRatingByAll(userId, contactId, fromDate, toDate, fieldType);
         };
     }
@@ -242,14 +243,14 @@ public class RatingCalculationService {
             FieldType fieldType
     ) {
         RatingDto ratingByForms = getContactRatingByForms(userId, contactId, fromDate, toDate, fieldType);
-        RatingDto ratingByQuestions = getContactRatingByQuestions(userId, contactId, fieldType);
+        RatingDto ratingByQuestions = getContactRatingByQuestions(userId, contactId, fieldType, fromDate, toDate);
 
         return ratingMapper.mapToRatingDtoWithWeights(ratingByForms, ratingByQuestions);
     }
 
-    private RatingDto getContactRatingByQuestions(UUID userId, UUID contactId, FieldType fieldType) {
+    private RatingDto getContactRatingByQuestions(UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate) {
         List<UserAnswerForCalculationDto> userAnswersForCalculation =
-                userAnswerRepository.findAllByUserIdAndContactIdAndFieldType(userId, contactId, fieldType);
+                userAnswerRepository.findAllByUserIdAndContactIdAndFieldTypeAndDateBetween(userId, contactId, fieldType, fromDate, toDate);
 
         if (userAnswersForCalculation == null || userAnswersForCalculation.isEmpty()) {
             return new RatingDto(contactId, RatingCalculationType.QUESTIONS, 0, 0, 0, 0, 0, 0, 0);
@@ -266,7 +267,7 @@ public class RatingCalculationService {
             UUID userId, UUID contactId, LocalDate fromDate, LocalDate toDate, FieldType fieldType
     ) {
         List<ContactInteractionDto> contactInteractions =
-                contactInteractionRepository.findAllByUserIdAndContactIdAndDateBetween(
+                contactInteractionRepository.findAllByUserIdAndContactId(
                         userId,
                         contactId,
                         fromDate,
@@ -331,7 +332,7 @@ public class RatingCalculationService {
         double totalWeightedSum = calculateTotalWeightedSum(interactionWeightedSums, userAnswerWeightedSums); // общая сумма взвешенных оценок
         double totalWeightedCount = calculateTotalWeightedCount(interactionCount, userAnswersForCalculation.size()); // общее количество взвешенных оценок
 
-        double oldAverageRating = calculateOldAverageRating(totalWeightedCount, totalWeightedSum);
+        double oldAverageRating = calculateAverageRating(totalWeightedCount, totalWeightedSum);
         double newAverageRating = calculateNewAverageRating(totalWeightedCount, totalWeightedSum, lastInteractionWeightedSum);
 
         averageRatingDto.setOldAverageRating(oldAverageRating);
@@ -376,7 +377,7 @@ public class RatingCalculationService {
                 ratingProps.getAnswerWeight();
     }
 
-    private double calculateOldAverageRating(
+    private double calculateAverageRating(
             double totalWeightedCount,
             double totalWeightedSum
     ) {
@@ -389,10 +390,7 @@ public class RatingCalculationService {
             double weightedLastInteractionSum
     ) {
         if (weightedLastInteractionSum == 0) {
-            return calculateOldAverageRating(totalWeightedCount, totalWeightedSum);
-        }
-        if (totalWeightedCount == 0) {
-            return 0;
+            return calculateAverageRating(totalWeightedCount, totalWeightedSum);
         }
 
         double delimiter = (totalWeightedCount + ratingProps.getInteractionWeight()) * METRIC_COUNT;
@@ -419,5 +417,123 @@ public class RatingCalculationService {
                 * ratingProps.getInteractionWeight();
     }
 
+    public List<CalculatedRatingDto> getCalculatedRatings(UUID userId, UUID contactId, PeriodType periodType) {
+        LocalDate fromDate = getFromDate(periodType);
+        LocalDate toDate = LocalDate.now();
 
+        List<ExtendedContactInteractionDto> contactInteractions =
+                contactInteractionRepository.findAllByUserIdAndContactId(userId, contactId);
+
+        List<UserAnswerForCalculationDto> userAnswersForCalculation =
+                userAnswerRepository.findAllByUserIdAndContactId(userId, contactId);
+
+        List<CalculatedRatingDto> calculatedRatings = new ArrayList<>();
+        int interactionCount = 0;
+        int userAnswerCount = 0;
+
+        for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = getNextDate(date, periodType)) {
+            LocalDate finalDate = date;
+            LocalDate finalDate1 = date;
+            List<ExtendedContactInteractionDto> tempContactInteractions = contactInteractions.stream()
+                    .filter(interaction -> interaction.date().isBefore(finalDate))
+                    .toList();
+            List<UserAnswerForCalculationDto> tempUserAnswersForCalculation = userAnswersForCalculation.stream()
+                    .filter(answer -> answer.createdAt().isBefore(finalDate1))
+                    .toList();
+            if (tempContactInteractions.isEmpty() && tempUserAnswersForCalculation.isEmpty() && date == fromDate) {
+                calculatedRatings.add(new CalculatedRatingDto(contactId, fromDate));
+                continue;
+            } else if (tempContactInteractions.isEmpty() && tempUserAnswersForCalculation.isEmpty()) {
+                continue;
+            } else if (interactionCount == tempContactInteractions.size() && userAnswerCount == tempUserAnswersForCalculation.size()) {
+                continue;
+            }
+            if (interactionCount < tempContactInteractions.size()) {
+                interactionCount = tempContactInteractions.size();
+            }
+            if (userAnswerCount < tempUserAnswersForCalculation.size()) {
+                userAnswerCount = tempUserAnswersForCalculation.size();
+            }
+            calculatedRatings.add(calculateRatingForDate(
+                    userId,
+                    contactId,
+                    tempContactInteractions,
+                    tempUserAnswersForCalculation,
+                    LocalDate.now().minusYears(10),
+                    finalDate
+            ));
+        }
+
+        if (calculatedRatings.getLast().getLastInteractionDate().isBefore(toDate)){
+            calculatedRatings.add(calculateRatingForDate(
+                    userId,
+                    contactId,
+                    contactInteractions,
+                    userAnswersForCalculation,
+                    LocalDate.now().minusYears(10),
+                    toDate
+            ));
+        } else if (calculatedRatings.isEmpty() ) {
+            calculatedRatings.add(new CalculatedRatingDto(contactId, fromDate));
+        }
+
+        return calculatedRatings;
+    }
+
+    private LocalDate getNextDate(LocalDate date, PeriodType periodType) {
+        return switch (periodType) {
+            case WEEK -> date.plusDays(1);
+            case MONTH -> date.plusWeeks(1);
+            case HALF_YEAR -> date.plusMonths(1);
+        };
+    }
+
+
+    private LocalDate getFromDate(PeriodType periodType) {
+        LocalDate now = LocalDate.now();
+        return switch (periodType) {
+            case WEEK -> now.minusWeeks(1);
+            case MONTH -> now.minusMonths(1);
+            case HALF_YEAR -> now.minusMonths(6);
+        };
+    }
+
+    private CalculatedRatingDto calculateRatingForDate(
+            UUID userId,
+            UUID contactId,
+            List<ExtendedContactInteractionDto> contactInteractions,
+            List<UserAnswerForCalculationDto> userAnswersForCalculation,
+            LocalDate fromDate,
+            LocalDate date
+    ) {
+        CalculatedRatingDto calculatedRatingDto = new CalculatedRatingDto(contactId, date);
+
+        int userAnswerCount = userAnswersForCalculation.size();
+        int interactionCount = contactInteractions.size();
+        double interactionWeightedSums = calculateWeightedRatingSumByInteractions(contactInteractions); // сумма всех взвешенных оценок по взаимодействиям
+        double userAnswerWeightedSums = calculateWeightedUserAnswerSum(userAnswersForCalculation); // сумма всех взвешенных оценок по ответам на вопросы
+
+        double totalWeightedCount = calculateTotalWeightedCount(interactionCount, userAnswersForCalculation.size()); // общее количество взвешенных оценок
+        double totalWeightedSum = calculateTotalWeightedSum(interactionWeightedSums, userAnswerWeightedSums); // общая сумма взвешенных оценок
+
+        calculatedRatingDto.setAverageRating(calculateAverageRating(totalWeightedCount, totalWeightedSum));
+        RatingDto ratingDto = getRatingByContactId(
+                userId,
+                contactId,
+                fromDate,
+                date,
+                FieldType.ALL,
+                RatingCalculationType.ALL
+        );
+
+        calculatedRatingDto.setQuestionAnswerCount(userAnswerCount);
+        calculatedRatingDto.setInteractionCount(interactionCount);
+        calculatedRatingDto.setCommunicationRating(ratingDto.getCommunicationRating());
+        calculatedRatingDto.setRespectRating(ratingDto.getRespectRating());
+        calculatedRatingDto.setTrustRating(ratingDto.getTrustRating());
+        calculatedRatingDto.setEmpathyRating(ratingDto.getEmpathyRating());
+        calculatedRatingDto.setTimeRating(ratingDto.getTimeRating());
+
+        return calculatedRatingDto;
+    }
 }

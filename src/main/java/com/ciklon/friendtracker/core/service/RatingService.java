@@ -1,7 +1,9 @@
 package com.ciklon.friendtracker.core.service;
 
 import com.ciklon.friendtracker.api.dto.enums.FieldType;
+import com.ciklon.friendtracker.api.dto.enums.PeriodType;
 import com.ciklon.friendtracker.api.dto.enums.RatingCalculationType;
+import com.ciklon.friendtracker.api.dto.rating.CalculatedRatingDto;
 import com.ciklon.friendtracker.api.dto.rating.RatingDto;
 import com.ciklon.friendtracker.api.dto.rating.RatingPaginationResponse;
 import com.ciklon.friendtracker.common.DataValidator;
@@ -64,4 +66,9 @@ public class RatingService {
                 ratingCalculationType
         );
     }
+
+    public List<CalculatedRatingDto> getCalculatedRatings(UUID userId, UUID contactId, PeriodType periodType) {
+        return ratingCalculationService.getCalculatedRatings(userId, contactId, periodType);
+    }
+
 }
