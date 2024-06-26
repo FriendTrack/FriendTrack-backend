@@ -242,8 +242,8 @@ public class RatingCalculationService {
     ) {
         RatingDto ratingByForms = getContactRatingByForms(userId, contactId, fromDate, toDate, fieldType);
         RatingDto ratingByQuestions = getContactRatingByQuestions(userId, contactId, fieldType, fromDate, toDate);
-
-        return ratingMapper.mapToRatingDtoWithWeights(ratingByForms, ratingByQuestions);
+//        return ratingMapper.mapToRatingDtoWithWeights(ratingByForms, ratingByQuestions);
+        return ratingByForms;
     }
 
     private RatingDto getContactRatingByQuestions(UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate) {
