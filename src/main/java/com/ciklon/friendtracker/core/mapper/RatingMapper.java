@@ -23,11 +23,12 @@ public class RatingMapper {
                              RatingCalculationType.QUESTIONS,
                              0,
                              questionAnswerCount,
+                             (double) dto.getTimeRatingSum() / questionAnswerCount,
+                             (double) dto.getCommunicationRatingSum() / questionAnswerCount,
                              (double) dto.getRespectRatingSum() / questionAnswerCount,
                              (double) dto.getTrustRatingSum() / questionAnswerCount,
-                             (double) dto.getEmpathyRatingSum() / questionAnswerCount,
-                             (double) dto.getQuestionAnswerCount() / questionAnswerCount,
-                             (double) dto.getTimeRatingSum() / questionAnswerCount
+                             (double) dto.getEmpathyRatingSum() / questionAnswerCount
+
         );
     }
 
@@ -40,11 +41,11 @@ public class RatingMapper {
                              RatingCalculationType.FORMS,
                              interactionCount,
                              0,
+                             (double) dto.getTimeRatingSum() / interactionCount,
+                             (double) dto.getCommunicationRatingSum() / interactionCount,
                              (double) dto.getRespectRatingSum() / interactionCount,
                              (double) dto.getTrustRatingSum() / interactionCount,
-                             (double) dto.getEmpathyRatingSum() / interactionCount,
-                             (double) dto.getCommunicationRatingSum() / interactionCount,
-                             (double) dto.getTimeRatingSum() / interactionCount
+                             (double) dto.getEmpathyRatingSum() / interactionCount
         );
     }
 
