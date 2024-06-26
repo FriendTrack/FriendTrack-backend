@@ -20,10 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -324,7 +321,7 @@ public class RatingCalculationService {
             return averageRatingDto;
         }
 
-        contactInteractions.sort((first, second) -> second.date().compareTo(first.date()));
+        contactInteractions.sort(Comparator.comparing(ExtendedContactInteractionDto::date));
         ExtendedContactInteractionDto lastInteraction = contactInteractions.removeLast();
 
         int interactionCount = contactInteractions.size();
@@ -425,7 +422,10 @@ public class RatingCalculationService {
         LocalDate toDate = LocalDate.now();
 
         List<ExtendedContactInteractionDto> contactInteractions =
-                contactInteractionRepository.findAllByUserIdAndContactId(userId, contactId);
+                contactInteractionRepository.findAllByUserIdAndContactId(userId, contactId)
+                        .stream()
+                        .sorted(Comparator.comparing(ExtendedContactInteractionDto::date))
+                        .toList();
 
         List<UserAnswerForCalculationDto> userAnswersForCalculation =
                 userAnswerRepository.findAllByUserIdAndContactId(userId, contactId);
@@ -433,6 +433,7 @@ public class RatingCalculationService {
         List<CalculatedRatingDto> calculatedRatings = new ArrayList<>();
         int interactionCount = 0;
         int userAnswerCount = 0;
+
 
         for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = getNextDate(date, periodType)) {
             LocalDate finalDate = date;
@@ -465,6 +466,15 @@ public class RatingCalculationService {
                     LocalDate.now().minusYears(10),
                     finalDate
             ));
+        }
+        LocalDate firstInteractionDate = contactInteractions.getFirst().date();
+
+        if (calculatedRatings.size() > 1 &&
+                firstInteractionDate.isAfter(calculatedRatings.getFirst().getLastInteractionDate())
+                && !firstInteractionDate.isAfter(calculatedRatings.get(1).getLastInteractionDate())
+                && calculatedRatings.getFirst().getAverageRating() == 0.0
+        ) {
+            calculatedRatings.add(1, new CalculatedRatingDto(contactId, firstInteractionDate));
         }
 
         if (calculatedRatings.getLast().getLastInteractionDate().isBefore(toDate)){

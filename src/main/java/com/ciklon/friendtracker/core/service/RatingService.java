@@ -80,7 +80,7 @@ public class RatingService {
 
         calculatedRatingDtos.forEach(calculatedRatingDto -> {
             RecommendationDto recommendationDto =
-                    recommendationRepository.findFirstByFieldType(getFieldTypeWithMinRating(calculatedRatingDto));
+                    recommendationRepository.findByFieldType(getFieldTypeWithMinRating(calculatedRatingDto));
             calculatedRatingDto.setTitle(recommendationDto.title());
             calculatedRatingDto.setDescription(recommendationDto.description());
         });
