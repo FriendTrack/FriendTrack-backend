@@ -390,7 +390,7 @@ public class RatingCalculationService {
             double weightedLastInteractionSum
     ) {
         if (weightedLastInteractionSum == 0) {
-            return calculateAverageRating(totalWeightedCount, totalWeightedSum);
+            return calculateAverageRating(totalWeightedCount + ratingProps.getInteractionWeight(), totalWeightedSum);
         }
 
         double delimiter = (totalWeightedCount + ratingProps.getInteractionWeight()) * METRIC_COUNT;
