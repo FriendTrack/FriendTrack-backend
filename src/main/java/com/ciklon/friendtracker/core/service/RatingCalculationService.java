@@ -19,7 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,12 +42,11 @@ public class RatingCalculationService {
             int page,
             int size
     ) {
-        Pageable pageable = PageRequest.of(page - 1, size);
 
         return switch (ratingCalculationType) {
-            case FORMS -> calculateRatingsByForms(userId, fromDate, toDate, fieldType, pageable);
-            case QUESTIONS -> calculateRatingsByQuestions(userId, fieldType, pageable);
-            case ALL -> calculateRatingsByAll(userId, fromDate, toDate, fieldType, pageable);
+            case FORMS -> calculateRatingsByForms(userId, fromDate, toDate, fieldType);
+            case QUESTIONS -> calculateRatingsByQuestions(userId, fieldType);
+            case ALL -> calculateRatingsByAll(userId, fromDate, toDate, fieldType);
         };
     }
 
@@ -91,14 +89,13 @@ public class RatingCalculationService {
     }
 
     private List<RatingDto> calculateRatingsByForms(
-            UUID userId, LocalDate fromDate, LocalDate toDate, FieldType fieldType, Pageable pageable
+            UUID userId, LocalDate fromDate, LocalDate toDate, FieldType fieldType
     ) {
         List<ContactInteractionDto> contactInteractions =
                 contactInteractionRepository.findAllByUserIdAndDateBetween(
                         userId,
                         fromDate,
-                        toDate,
-                        pageable
+                        toDate
                 );
 
         Map<UUID, List<ContactInteractionDto>> contactInteractionsMap =
@@ -151,11 +148,28 @@ public class RatingCalculationService {
         return ratingDto;
     }
 
+    private ContactInteractionsRatingDto collectRatingSums(
+            UUID contactId, List<ExtendedContactInteractionDto> contactInteractions
+    ) {
+        ContactInteractionsRatingDto ratingDto = new ContactInteractionsRatingDto(contactId);
+
+        contactInteractions.forEach(dto -> {
+            ratingDto.setInteractionCount(ratingDto.getInteractionCount() + 1);
+            ratingDto.setCommunicationRatingSum(ratingDto.getCommunicationRatingSum() + dto.communication());
+            ratingDto.setRespectRatingSum(ratingDto.getRespectRatingSum() + dto.respect());
+            ratingDto.setTrustRatingSum(ratingDto.getTrustRatingSum() + dto.trust());
+            ratingDto.setEmpathyRatingSum(ratingDto.getEmpathyRatingSum() + dto.empathy());
+            ratingDto.setTimeRatingSum(ratingDto.getTimeRatingSum() + dto.time());
+        });
+
+        return ratingDto;
+    }
+
     private List<RatingDto> calculateRatingsByQuestions(
-            UUID userId, FieldType fieldType, Pageable pageable
+            UUID userId, FieldType fieldType
     ) {
         List<UserAnswerForCalculationDto> userAnswersForCalculation =
-                userAnswerRepository.findAllByUserIdAndDateBetweenAndFieldType(userId, fieldType, pageable);
+                userAnswerRepository.findAllByUserIdAndDateBetweenAndFieldType(userId, fieldType);
 
         Map<UUID, List<UserAnswerForCalculationDto>> userAnswersForCalculationMap = userAnswersForCalculation.stream()
                 .collect(Collectors.groupingBy(UserAnswerForCalculationDto::contactId));
@@ -214,13 +228,13 @@ public class RatingCalculationService {
     }
 
     private List<RatingDto> calculateRatingsByAll(
-            UUID userId, LocalDate fromDate, LocalDate toDate, FieldType fieldType, Pageable pageable
+            UUID userId, LocalDate fromDate, LocalDate toDate, FieldType fieldType
     ) {
         Map<UUID, RatingDto> ratingsByForms =
-                calculateRatingsByForms(userId, fromDate, toDate, fieldType, pageable).stream()
+                calculateRatingsByForms(userId, fromDate, toDate, fieldType).stream()
                         .collect(Collectors.toMap(RatingDto::getContactId, rating -> rating));
 
-        Map<UUID, RatingDto> ratingsByQuestions = calculateRatingsByQuestions(userId, fieldType, pageable).stream()
+        Map<UUID, RatingDto> ratingsByQuestions = calculateRatingsByQuestions(userId, fieldType).stream()
                 .collect(Collectors.toMap(RatingDto::getContactId, rating -> rating));
 
         ratingsByQuestions.forEach((contactId, ratingByQuestion) -> ratingsByForms.merge(
@@ -240,10 +254,7 @@ public class RatingCalculationService {
             LocalDate toDate,
             FieldType fieldType
     ) {
-        RatingDto ratingByForms = getContactRatingByForms(userId, contactId, fromDate, toDate, fieldType);
-        RatingDto ratingByQuestions = getContactRatingByQuestions(userId, contactId, fieldType, fromDate, toDate);
-//        return ratingMapper.mapToRatingDtoWithWeights(ratingByForms, ratingByQuestions);
-        return ratingByForms;
+        return getContactRatingByForms(userId, contactId, fromDate, toDate, fieldType);
     }
 
     private RatingDto getContactRatingByQuestions(UUID userId, UUID contactId, FieldType fieldType, LocalDate fromDate, LocalDate toDate) {
@@ -417,6 +428,7 @@ public class RatingCalculationService {
                 * ratingProps.getInteractionWeight();
     }
 
+
     public List<CalculatedRatingDto> getCalculatedRatings(UUID userId, UUID contactId, PeriodType periodType) {
         LocalDate fromDate = getFromDate(periodType);
         LocalDate toDate = LocalDate.now();
@@ -427,43 +439,29 @@ public class RatingCalculationService {
                         .sorted(Comparator.comparing(ExtendedContactInteractionDto::date))
                         .toList();
 
-        List<UserAnswerForCalculationDto> userAnswersForCalculation =
-                userAnswerRepository.findAllByUserIdAndContactId(userId, contactId);
-
         List<CalculatedRatingDto> calculatedRatings = new ArrayList<>();
         int interactionCount = 0;
-        int userAnswerCount = 0;
 
 
         for (LocalDate date = fromDate; date.isBefore(toDate.plusDays(1)); date = getNextDate(date, periodType)) {
-            LocalDate finalDate = date;
-            LocalDateTime finalDate1 = date.atStartOfDay();
+            LocalDate finalDate = date.plusDays(1);
             List<ExtendedContactInteractionDto> tempContactInteractions = contactInteractions.stream()
                     .filter(interaction -> interaction.date().isBefore(finalDate))
                     .toList();
-            List<UserAnswerForCalculationDto> tempUserAnswersForCalculation = userAnswersForCalculation.stream()
-                    .filter(answer -> answer.createdAt().isBefore(finalDate1))
-                    .toList();
-            if (tempContactInteractions.isEmpty() && tempUserAnswersForCalculation.isEmpty() && date == fromDate) {
-                calculatedRatings.add(new CalculatedRatingDto(contactId, fromDate));
+            if (tempContactInteractions.isEmpty()) {
+                if (date == fromDate) {
+                    calculatedRatings.add(new CalculatedRatingDto(contactId, fromDate));
+                }
                 continue;
-            } else if (tempContactInteractions.isEmpty() && tempUserAnswersForCalculation.isEmpty()) {
-                continue;
-            } else if (interactionCount == tempContactInteractions.size() && userAnswerCount == tempUserAnswersForCalculation.size()) {
+            } else if (interactionCount == tempContactInteractions.size()) {
                 continue;
             }
             if (interactionCount < tempContactInteractions.size()) {
                 interactionCount = tempContactInteractions.size();
             }
-            if (userAnswerCount < tempUserAnswersForCalculation.size()) {
-                userAnswerCount = tempUserAnswersForCalculation.size();
-            }
             calculatedRatings.add(calculateRatingForDate(
-                    userId,
                     contactId,
                     tempContactInteractions,
-                    tempUserAnswersForCalculation,
-                    LocalDate.now().minusYears(10),
                     finalDate
             ));
         }
@@ -479,14 +477,11 @@ public class RatingCalculationService {
 
         if (calculatedRatings.getLast().getLastInteractionDate().isBefore(toDate)){
             calculatedRatings.add(calculateRatingForDate(
-                    userId,
                     contactId,
                     contactInteractions,
-                    userAnswersForCalculation,
-                    LocalDate.now().minusYears(10),
                     toDate
             ));
-        } else if (calculatedRatings.isEmpty() ) {
+        } else if (calculatedRatings.isEmpty()) {
             calculatedRatings.add(new CalculatedRatingDto(contactId, fromDate));
         }
 
@@ -512,34 +507,23 @@ public class RatingCalculationService {
     }
 
     private CalculatedRatingDto calculateRatingForDate(
-            UUID userId,
             UUID contactId,
             List<ExtendedContactInteractionDto> contactInteractions,
-            List<UserAnswerForCalculationDto> userAnswersForCalculation,
-            LocalDate fromDate,
             LocalDate date
     ) {
         CalculatedRatingDto calculatedRatingDto = new CalculatedRatingDto(contactId, date);
 
-        int userAnswerCount = userAnswersForCalculation.size();
         int interactionCount = contactInteractions.size();
-        double interactionWeightedSums = calculateWeightedRatingSumByInteractions(contactInteractions); // сумма всех взвешенных оценок по взаимодействиям
-        double userAnswerWeightedSums = calculateWeightedUserAnswerSum(userAnswersForCalculation); // сумма всех взвешенных оценок по ответам на вопросы
+        double interactionWeightedSums = calculateWeightedRatingSumByInteractions(contactInteractions);
 
-        double totalWeightedCount = calculateTotalWeightedCount(interactionCount, userAnswersForCalculation.size()); // общее количество взвешенных оценок
-        double totalWeightedSum = calculateTotalWeightedSum(interactionWeightedSums, userAnswerWeightedSums); // общая сумма взвешенных оценок
+        calculatedRatingDto.setAverageRating(calculateAverageRating(
+                interactionCount * ratingProps.getInteractionWeight(),
+                interactionWeightedSums
+        ));
 
-        calculatedRatingDto.setAverageRating(calculateAverageRating(totalWeightedCount, totalWeightedSum));
-        RatingDto ratingDto = getRatingByContactId(
-                userId,
-                contactId,
-                fromDate,
-                date,
-                FieldType.ALL,
-                RatingCalculationType.ALL
-        );
+        RatingDto ratingDto =
+                ratingMapper.mapToRatingDto(collectRatingSums(contactId, contactInteractions));
 
-        calculatedRatingDto.setQuestionAnswerCount(userAnswerCount);
         calculatedRatingDto.setInteractionCount(interactionCount);
         calculatedRatingDto.setCommunicationRating(ratingDto.getCommunicationRating());
         calculatedRatingDto.setRespectRating(ratingDto.getRespectRating());

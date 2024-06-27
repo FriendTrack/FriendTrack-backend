@@ -48,7 +48,7 @@ public interface UserAnswerRepository extends JpaRepository<UserAnswer, UUID> {
         and (ua.question.fieldType = :fieldType or :fieldType = 'ALL')
     """)
     List<UserAnswerForCalculationDto> findAllByUserIdAndDateBetweenAndFieldType(
-            UUID userId, FieldType fieldType, Pageable pageable);
+            UUID userId, FieldType fieldType);
 
     @Query("""
         select new com.ciklon.friendtracker.api.dto.rating.UserAnswerForCalculationDto(
